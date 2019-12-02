@@ -42,6 +42,14 @@ Follow the riff instructions for:
 
 > NOTE: kapp can't install keda on a Kubernetes cluster running version 1.16 so we need to force the Kubernetes version to be 1.14 or 1.15
 
+### Initialize the Helm Tiller server in your cluster
+
+```
+kubectl create serviceaccount tiller -n kube-system
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount kube-system:tiller
+helm init --wait --service-account tiller
+```
+
 ### Install NGINX Ingress Controller
 
 On GKE:
