@@ -137,3 +137,67 @@ host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(minikube ip)
 curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' ; echo
 ```
+
+### Build inventory-gui app
+
+For build instruction see: https://github.com/projectriff-demo/inventory-management/blob/master/README.md#frontend
+
+We have a pre-built image available as `projectriff/inventory-gui` and will that for these instructions.
+
+```
+riff container create inventory-gui --image projectriff/inventory-gui
+```
+
+### Deploy inventory-gui service
+
+```
+riff core deployer create inventory-gui --container-ref inventory-gui --container-port 4200 --service-name inventory-gui
+```
+
+Add an entry in `/etc/hosts` for `http://inventory-gui.default.example.com`.
+
+Enter the IP address for the entry based on the following:
+
+For GKE:
+
+```
+kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
+
+For Minikube:
+
+```
+minikube ip
+```
+
+### Build storefront app
+
+For build instruction see: https://github.com/projectriff-demo/storefront/blob/master/README.md
+
+We have a pre-built image available as `projectriff/storefront` and will that for these instructions.
+
+```
+riff container create storefront --image projectriff/storefront
+```
+
+### Deploy storefront service
+
+```
+riff core deployer create storefront --container-ref storefront --container-port 4200 --service-name storefront
+```
+
+Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
+
+Enter the IP address for the entry based on the following:
+
+For GKE:
+
+```
+kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
+
+For Minikube:
+
+```
+minikube ip
+```
