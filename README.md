@@ -74,7 +74,7 @@ The NGINX ingress controller is exposed on port 80 on the minikube ip address
 Clone this repo:
 
 ```
-git clone https://github.com/tanzu-mkondo/demo.git
+git clone https://github.com/projectriff-demo/demo.git
 cd demo
 ```
 
@@ -100,7 +100,7 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 ### Build inventory-api app
 
 ```
-riff app create inventory-api --git-repo https://github.com/tanzu-mkondo/inventory-management.git
+riff app create inventory-api --git-repo https://github.com/projectriff-demo/inventory-management.git
 ```
 
 ### Deploy inventory-api service
