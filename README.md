@@ -37,9 +37,8 @@ sudo mv ./riff /usr/local/bin/riff
 
 Follow the riff instructions for:
 
-- [GKE](https://projectriff.io/docs/v0.4/getting-started/gke)
-- [Minikube](https://projectriff.io/docs/v0.4/getting-started/minikube)
-- [Docker for Mac](https://projectriff.io/docs/v0.4/getting-started/docker-for-mac)
+- [GKE](https://projectriff.io/docs/v0.5/getting-started/gke)
+- [Minikube](https://projectriff.io/docs/v0.5/getting-started/minikube)
 
 > NOTE: kapp can't install keda on a Kubernetes cluster running version 1.16 so we need to force the Kubernetes version to be 1.14 or 1.15
 
@@ -85,7 +84,6 @@ minikube addons enable ingress
 
 The NGINX ingress controller is exposed on port 80 on the minikube ip address
 
-
 ### Install inventory database
 
 ```
@@ -100,16 +98,20 @@ riff app create inventory-api --git-repo https://github.com/tanzu-mkondo/invento
 
 ### Deploy inventory-api service
 
+```
 riff core deployer create inventory-api --application-ref inventory-api \
   --service-name inventory-api \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
   --env SPRING_DATASOURCE_USERNAME=postgres \
   --env-from SPRING_DATASOURCE_PASSWORD=secretKeyRef:inventory-db-postgresql:postgresql-password
+```
 
 ### Load some test data
 
+```
 ./curl-data.sh data/sample-data.json
+```
 
 ### Access inventory-api service
 
