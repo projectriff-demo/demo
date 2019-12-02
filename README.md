@@ -80,7 +80,7 @@ cd demo
 
 ### Install riff
 
-Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and serving runtimes
+Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and streaming runtimes
 
 ### Add Docker Hub credentials for builds
 
