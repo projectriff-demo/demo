@@ -142,7 +142,7 @@ curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: a
 
 For build instruction see: https://github.com/projectriff-demo/inventory-management/blob/master/README.md#frontend
 
-We have a pre-built image available as `projectriff/inventory-gui` and will that for these instructions.
+We have a pre-built image available as `projectriff/inventory-gui` and will use that for these instructions.
 
 ```
 riff container create inventory-gui --image projectriff/inventory-gui
@@ -174,7 +174,7 @@ minikube ip
 
 For build instruction see: https://github.com/projectriff-demo/storefront/blob/master/README.md
 
-We have a pre-built image available as `projectriff/storefront` and will that for these instructions.
+We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
 
 ```
 riff container create storefront --image projectriff/storefront
