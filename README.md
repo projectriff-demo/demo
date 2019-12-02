@@ -42,6 +42,25 @@ Follow the riff instructions for:
 
 > NOTE: kapp can't install keda on a Kubernetes cluster running version 1.16 so we need to force the Kubernetes version to be 1.14 or 1.15
 
+### Install NGINX Ingress Controller
+
+On GKE:
+
+```
+helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
+```
+
+The NGINX ingress controller is exposed as LoadBalancer with external IP address
+
+
+On Minikube:
+
+```
+minikube addons enable ingress
+```
+
+The NGINX ingress controller is exposed on port 80 on the minikube ip address
+
 ### Clone the demo repo
 
 Clone this repo:
@@ -62,27 +81,7 @@ DOCKER_USER=$USER
 riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image-prefix
 ```
 
-
 ## Run the demo
-
-### Install NGINX Ingress Controller
-
-On GKE:
-
-```
-helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
-```
-
-The NGINX ingress controller is exposed as LoadBalancer with external IP address
-
-
-On Minikube:
-
-```
-minikube addons enable ingress
-```
-
-The NGINX ingress controller is exposed on port 80 on the minikube ip address
 
 ### Install inventory database
 
