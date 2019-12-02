@@ -82,7 +82,7 @@ cd demo
 
 Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and serving runtimes
 
-### Add Docker Hub credentiasl for builds
+### Add Docker Hub credentials for builds
 
 ```
 DOCKER_USER=$USER
@@ -127,7 +127,7 @@ For GKE:
 ```
 host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl ${ingress} -H "Host: ${host}.default.example.com" -H 'Content-Type: text/plain' -H 'Accept: text/plain' -d riff ; echo
+curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' ; echo
 ```
 
 For Minikube:
@@ -135,5 +135,5 @@ For Minikube:
 ```
 host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(minikube ip)
-curl ${ingress} -H "Host: ${host}.default.example.com" -H 'Content-Type: text/plain' -H 'Accept: text/plain' -d riff ; echo
+curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' ; echo
 ```
