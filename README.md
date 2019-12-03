@@ -61,7 +61,7 @@ Install NGINX Ingress using:
 helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
 ```
 
-The NGINX ingress controller is exposed as LoadBalancer with external IP address. For "Docker Desktop" it should be exposed on port 80n on `localhost`.
+The NGINX ingress controller is exposed as LoadBalancer with external IP address. For "Docker Desktop" it should be exposed on port 80 on `localhost`.
 
 Run the following to verify:
 
