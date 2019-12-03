@@ -80,7 +80,18 @@ cd demo
 
 ### Install riff
 
-Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and streaming runtimes
+Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and streaming runtimes.
+
+For a cluster that supports LoadBalancer use:
+
+```
+./riff-kapp-install.sh
+```
+
+For a cluster like "Minikube" or "Docker for Mac" that doesn't support LoadBalancer use:
+```
+./riff-kapp-install.sh --node-port
+```
 
 ### Add Docker Hub credentials for builds
 
@@ -100,7 +111,7 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 ### Build inventory-api app
 
 ```
-riff app create inventory-api --git-repo https://github.com/projectriff-demo/inventory-management.git
+riff app create inventory-api --git-repo https://github.com/projectriff-demo/inventory-management.git --tail
 ```
 
 ### Deploy inventory-api service
