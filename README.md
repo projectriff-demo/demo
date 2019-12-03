@@ -39,6 +39,7 @@ Follow the riff instructions for:
 
 - [GKE](https://projectriff.io/docs/v0.5/getting-started/gke)
 - [Minikube](https://projectriff.io/docs/v0.5/getting-started/minikube)
+- [Docker Desktop](https://projectriff.io/docs/v0.5/getting-started/docker-for-mac)
 
 > NOTE: kapp can't install keda on a Kubernetes cluster running version 1.16 so we need to force the Kubernetes version to be 1.14 or 1.15
 
@@ -52,16 +53,25 @@ helm init --wait --service-account tiller
 
 ### Install NGINX Ingress Controller
 
-On GKE:
+#### NGINX Ingress on GKE or Docker Desktop
+
+Install NGINX Ingress using:
 
 ```
 helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
 ```
 
-The NGINX ingress controller is exposed as LoadBalancer with external IP address
+The NGINX ingress controller is exposed as LoadBalancer with external IP address. For "Docker Desktop" it should be exposed on port 80n on `localhost`.
 
+Run the following to verify:
 
-On Minikube:
+```
+kubectl get services --namespace nginx-ingress
+```
+
+#### NGINX Ingress on Minikube
+
+Install NGINX Ingress using:
 
 ```
 minikube addons enable ingress
@@ -74,8 +84,8 @@ The NGINX ingress controller is exposed on port 80 on the minikube ip address
 Clone this repo:
 
 ```
-git clone https://github.com/projectriff-demo/demo.git
-cd demo
+git clone https://github.com/projectriff-demo/demo.git riff-shopping-demo
+riff-shopping-demo
 ```
 
 ### Install riff
@@ -120,6 +130,7 @@ riff app create inventory-api --git-repo https://github.com/projectriff-demo/inv
 ```
 riff core deployer create inventory-api --application-ref inventory-api \
   --service-name inventory-api \
+  --ingress-policy External \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
   --env SPRING_DATASOURCE_USERNAME=postgres \
@@ -140,7 +151,15 @@ For GKE:
 ```
 host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' ; echo
+curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
+```
+
+For Docker Desktop:
+
+```
+host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
+ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
+curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 For Minikube:
@@ -148,7 +167,7 @@ For Minikube:
 ```
 host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(minikube ip)
-curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' ; echo
+curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 ### Build inventory-gui app
@@ -167,6 +186,7 @@ riff container create inventory-gui --image projectriff/inventory-gui --tail
 riff core deployer create inventory-gui --container-ref inventory-gui \
   --container-port 4200 \
   --service-name inventory-gui \
+  --ingress-policy External \
   --tail
 ```
 
@@ -177,13 +197,17 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
+
+For Docker Desktop:
+
+`127.0.0.1`
 
 For Minikube:
 
 ```
-minikube ip
+minikube ip && echo
 ```
 
 ### Build storefront app
@@ -202,6 +226,7 @@ riff container create storefront --image projectriff/storefront
 riff core deployer create storefront --container-ref storefront \
   --container-port 4200 \
   --service-name storefront \
+  --ingress-policy External \
   --tail
 ```
 
@@ -212,11 +237,16 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
+
+For Docker Desktop:
+
+`127.0.0.1`
+
 
 For Minikube:
 
 ```
-minikube ip
+minikube ip && echo
 ```
