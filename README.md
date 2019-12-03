@@ -88,7 +88,8 @@ For a cluster that supports LoadBalancer use:
 ./riff-kapp-install.sh
 ```
 
-For a cluster like "Minikube" or "Docker for Mac" that doesn't support LoadBalancer use:
+For a cluster like "Minikube" or "Docker Desktop" that doesn't support LoadBalancer use:
+
 ```
 ./riff-kapp-install.sh --node-port
 ```
