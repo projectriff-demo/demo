@@ -184,7 +184,7 @@ riff container create inventory-gui --image projectriff/inventory-gui --tail
 
 ```
 riff core deployer create inventory-gui --container-ref inventory-gui \
-  --container-port 4200 \
+  --target-port 4200 \
   --service-name inventory-gui \
   --ingress-policy External \
   --tail
@@ -224,7 +224,7 @@ riff container create storefront --image projectriff/storefront
 
 ```
 riff core deployer create storefront --container-ref storefront \
-  --container-port 4200 \
+  --target-port 4200 \
   --service-name storefront \
   --ingress-policy External \
   --tail
