@@ -85,7 +85,7 @@ Clone this repo:
 
 ```
 git clone https://github.com/projectriff-demo/demo.git riff-shopping-demo
-riff-shopping-demo
+cd riff-shopping-demo
 ```
 
 ### Install riff
