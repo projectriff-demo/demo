@@ -123,7 +123,8 @@ riff core deployer create inventory-api --application-ref inventory-api \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
   --env SPRING_DATASOURCE_USERNAME=postgres \
-  --env-from SPRING_DATASOURCE_PASSWORD=secretKeyRef:inventory-db-postgresql:postgresql-password
+  --env-from SPRING_DATASOURCE_PASSWORD=secretKeyRef:inventory-db-postgresql:postgresql-password \
+  --tail
 ```
 
 ### Load some test data
@@ -157,13 +158,16 @@ For build instruction see: https://github.com/projectriff-demo/inventory-managem
 We have a pre-built image available as `projectriff/inventory-gui` and will use that for these instructions.
 
 ```
-riff container create inventory-gui --image projectriff/inventory-gui
+riff container create inventory-gui --image projectriff/inventory-gui --tail
 ```
 
 ### Deploy inventory-gui service
 
 ```
-riff core deployer create inventory-gui --container-ref inventory-gui --container-port 4200 --service-name inventory-gui
+riff core deployer create inventory-gui --container-ref inventory-gui \
+  --container-port 4200 \
+  --service-name inventory-gui \
+  --tail
 ```
 
 Add an entry in `/etc/hosts` for `http://inventory-gui.default.example.com`.
@@ -195,7 +199,10 @@ riff container create storefront --image projectriff/storefront
 ### Deploy storefront service
 
 ```
-riff core deployer create storefront --container-ref storefront --container-port 4200 --service-name storefront
+riff core deployer create storefront --container-ref storefront \
+  --container-port 4200 \
+  --service-name storefront \
+  --tail
 ```
 
 Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
