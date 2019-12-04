@@ -185,46 +185,6 @@ Once we have the `ingress` variable set, we can issue curl command to access the
 curl ${ingress}/api/article -H "Host: inventory-api.default.example.com" -H 'Accept: application/json' && echo
 ```
 
-### Build storefront app
-
-For build instruction see: https://github.com/projectriff-demo/storefront/blob/master/README.md
-
-We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
-
-```
-riff container create storefront --image projectriff/storefront
-```
-
-### Deploy storefront service
-
-```
-riff core deployer create storefront --container-ref storefront \
-  --target-port 4200 \
-  --ingress-policy External \
-  --tail
-```
-
-Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
-
-Enter the IP address for the entry based on the following:
-
-For GKE:
-
-```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
-```
-
-For Docker Desktop:
-
-`127.0.0.1`
-
-
-For Minikube:
-
-```
-minikube ip && echo
-```
-
 ### Add a new article
 
 To add a new article to the inventory run the following:
@@ -266,6 +226,48 @@ riff core deployer create events-api --container-ref http-source \
   --env OUTPUT_CONTENT_TYPES=application/json,application/json \
   --tail
 ```
+
+### Build storefront app
+
+For build instruction see: https://github.com/projectriff-demo/storefront/blob/master/README.md
+
+We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
+
+```
+riff container create storefront --image projectriff/storefront
+```
+
+### Deploy storefront service
+
+```
+riff core deployer create storefront --container-ref storefront \
+  --target-port 4200 \
+  --ingress-policy External \
+  --tail
+```
+
+Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
+
+Enter the IP address for the entry based on the following:
+
+For GKE:
+
+```
+kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
+```
+
+For Docker Desktop:
+
+`127.0.0.1`
+
+
+For Minikube:
+
+```
+minikube ip && echo
+```
+
+### Test streams and events-api
 
 #### Look up ingress
 
