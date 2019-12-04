@@ -222,7 +222,7 @@ Once we have the `gateway` variable set, we can create the HTTP source:
 ```
 riff core deployer create events-api --container-ref http-source \
   --ingress-policy External \
-  --env OUTPUTS=/cart=${gateway}:6565/default_cart-events,/checkout=${gateway}:6565/default_checkout-events \
+  --env OUTPUTS=/cart-events=${gateway}:6565/default_cart-events,/checkout-events=${gateway}:6565/default_checkout-events \
   --env OUTPUT_CONTENT_TYPES=application/json,application/json \
   --tail
 ```
@@ -234,7 +234,7 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriff/storefront
+riff container create storefront --image projectriff/storefront:v002
 ```
 
 ### Deploy storefront service
