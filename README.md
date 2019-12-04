@@ -146,27 +146,32 @@ riff core deployer create inventory-api --application-ref inventory-api \
 
 ### Access inventory-api service
 
+#### Look up ingress
+
 For GKE:
 
 ```
-host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 For Docker Desktop:
 
 ```
-host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
-curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 For Minikube:
 
 ```
-host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 ingress=$(minikube ip)
+```
+
+#### Look up host and access api service
+
+Once we have the `ingress` variable set, we can look up the host for the app and issue curl command to access the api:
+
+```
+host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
 ```
 
