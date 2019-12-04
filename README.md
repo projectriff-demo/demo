@@ -242,7 +242,7 @@ riff streaming stream create cart-events --provider franz-kafka-provisioner --co
 riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
 ```
 
-#### Create an event-api HTTP source
+#### Create an events-api HTTP source
 
 Create a `container` resource using the HTTP Source image:
 
