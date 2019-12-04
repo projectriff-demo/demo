@@ -150,12 +150,6 @@ riff core deployer create inventory-api --application-ref inventory-api \
 ./curl-data.sh data/sample-data.json
 ```
 
-### Add a new article
-
-```
-./curl-data.sh data/new-article-flute.json
-```
-
 ### Access inventory-api service
 
 #### Look up ingress
@@ -226,4 +220,10 @@ For Minikube:
 
 ```
 minikube ip && echo
+```
+
+### Add a new article
+
+```
+./curl-data.sh data/new-article-flute.json
 ```
