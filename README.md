@@ -119,6 +119,12 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
 ```
 
+### Create kafka-provider
+
+```
+riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
+```
+
 ### Build inventory-api app
 
 ```
