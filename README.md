@@ -242,7 +242,7 @@ riff streaming stream create cart-events --provider franz-kafka-provisioner --co
 riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
 ```
 
-#### Create two HTTP sources
+#### Create an event-api HTTP source
 
 Create a `container` resource using the HTTP Source image:
 
@@ -257,18 +257,13 @@ gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
   -l streaming.projectriff.io/kafka-provider-gateway=franz)  
 ```
 
-Once we have the `gateway` variable set, we can create an HTTP source for each stream:
+Once we have the `gateway` variable set, we can create the HTTP source:
 
 ```
-riff core deployer create cart-events-source --container-ref http-source \
+riff core deployer create events-api --container-ref http-source \
   --ingress-policy External \
-  --env OUTPUTS=/cart=${gateway}:6565/default_cart-events \
-  --env OUTPUT_CONTENT_TYPES=application/json \
-  --tail
-riff core deployer create checkout-events-source --container-ref http-source \
-  --ingress-policy External \
-  --env OUTPUTS=/checkout=${gateway}:6565/default_checkout-events \
-  --env OUTPUT_CONTENT_TYPES=application/json \
+  --env OUTPUTS=/cart=${gateway}:6565/default_cart-events,/checkout=${gateway}:6565/default_checkout-events \
+  --env OUTPUT_CONTENT_TYPES=application/json,application/json \
   --tail
 ```
 
@@ -299,15 +294,15 @@ Once we have the `ingress` variable set, we can issue curl command to post data 
 First the `cart-events-source`:
 
 ```
-curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "add", "sku": "12345-00002"}'
-curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "add", "sku": "12345-00001"}'
-curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "remove", "sku": "12345-00002"}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "add", "sku": "12345-00002", "quantity": 1}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "add", "sku": "12345-00001",  "quantity": 1}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "remove", "sku": "12345-00002"}'
 ```
 
 Then the `checkout-events-source`:
 
 ```
-curl ${ingress}/checkout -H "Host: checkout-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "checkout"}'
+curl ${ingress}/checkout-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "checkout"}'
 ```
 
 #### Check the events published on the streams
