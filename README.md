@@ -90,7 +90,7 @@ cd riff-shopping-demo
 
 ### Install riff
 
-Install riff and all dependent packages including cert-manager, kpack, keda, riff-build, istio and core, knative and streaming runtimes.
+Install riff and all dependent packages including cert-manager, kpack, keda, kafka, riff-build, istio and core, knative and streaming runtimes.
 
 For a cluster that supports LoadBalancer use:
 
@@ -173,46 +173,6 @@ Once we have the `ingress` variable set, we can look up the host for the app and
 ```
 host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
 curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
-```
-
-### Build inventory-gui app
-
-For build instruction see: https://github.com/projectriff-demo/inventory-management/blob/master/README.md#frontend
-
-We have a pre-built image available as `projectriff/inventory-gui` and will use that for these instructions.
-
-```
-riff container create inventory-gui --image projectriff/inventory-gui --tail
-```
-
-### Deploy inventory-gui service
-
-```
-riff core deployer create inventory-gui --container-ref inventory-gui \
-  --target-port 4200 \
-  --service-name inventory-gui \
-  --ingress-policy External \
-  --tail
-```
-
-Add an entry in `/etc/hosts` for `http://inventory-gui.default.example.com`.
-
-Enter the IP address for the entry based on the following:
-
-For GKE:
-
-```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
-```
-
-For Docker Desktop:
-
-`127.0.0.1`
-
-For Minikube:
-
-```
-minikube ip && echo
 ```
 
 ### Build storefront app

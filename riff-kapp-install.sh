@@ -40,6 +40,9 @@ kapp deploy -y -n apps -a riff-core-runtime -f https://storage.googleapis.com/pr
 kapp deploy -y -n apps -a knative -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/knative.yaml
 kapp deploy -y -n apps -a riff-knative-runtime -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/riff-knative-runtime.yaml
 
+# kafka
+kapp deploy -y -n apps -a kafka -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/kafka.yaml
+
 # riff streaming runtime
 kapp deploy -y -n apps -a keda -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/keda.yaml
 kapp deploy -y -n apps -a riff-streaming-runtime -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/riff-streaming-runtime.yaml
