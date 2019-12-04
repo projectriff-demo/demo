@@ -13,7 +13,7 @@ Have the following installed:
 
 ### Install riff CLI
 
-You need the latest [riff CLI](https://github.com/projectriff/cli/). You can run the following commands to download the latest snapshot executable archive for your OS, extract executable and then place it on your path.
+You need the latest [riff CLI](https://github.com/projectriff/cli/). You can run the following commands to download the latest snapshot executable archive for your OS, extract the executable and then place it on your path.
 
 #### Download and extract the riff CLI executable
 
