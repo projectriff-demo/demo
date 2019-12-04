@@ -310,7 +310,7 @@ Then the `checkout-events-source`:
 curl ${ingress}/checkout -H "Host: checkout-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "checkout"}'
 ```
 
-#### Check the stream
+#### Check the events published on the streams
 
 ##### Run dev-utils pod
 
