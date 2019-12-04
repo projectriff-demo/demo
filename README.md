@@ -13,7 +13,9 @@ Have the following installed:
 
 ### Install riff CLI
 
-You need the latest [riff CLI](https://github.com/projectriff/cli/). You can run the following and then place the executable on your path.
+You need the latest [riff CLI](https://github.com/projectriff/cli/). You can run the following commands to download the latest snapshot executable archive for your OS, extract executable and then place it on your path.
+
+#### Download and extract the riff CLI executable
 
 For macOS:
 
@@ -21,7 +23,6 @@ For macOS:
 wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-darwin-amd64.tgz
 tar xvzf riff-darwin-amd64.tgz
 rm riff-darwin-amd64.tgz
-sudo mv ./riff /usr/local/bin/riff
 ```
 
 for Linux:
@@ -30,6 +31,11 @@ for Linux:
 wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-linux-amd64.tgz
 tar xvzf riff-linux-amd64.tgz
 rm riff-linux-amd64.tgz
+```
+
+#### Move the riff CLI executable to your PATH
+
+```
 sudo mv ./riff /usr/local/bin/riff
 ```
 
