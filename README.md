@@ -177,7 +177,7 @@ For Minikube:
 ingress=$(minikube ip)
 ```
 
-#### Look up host and access api service
+#### Access inventory-api service
 
 Once we have the `ingress` variable set, we can issue curl command to access the api:
 
@@ -267,7 +267,11 @@ For Minikube:
 minikube ip && echo
 ```
 
-### Test streams and events-api
+### Go shopping!
+
+Open http://storefront.default.example.com in your browser.
+
+### Manually test streams and events-api
 
 #### Look up ingress
 
@@ -296,18 +300,12 @@ Once we have the `ingress` variable set, we can issue curl command to post data 
 First the `cart-events-source`:
 
 ```
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "add", "sku": "12345-00002", "quantity": 1}'
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "add", "sku": "12345-00001",  "quantity": 1}'
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "remove", "sku": "12345-00002"}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"add\",\"sku\":\"12345-00002\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1}]}}"
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"add\",\"sku\":\"12345-00001\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1},{\"sku\":\"12345-00001\",\"name\":\"Trumpet\",\"description\":\"A fine musical instrument, perfect for playing Jazz riffs.\",\"priceInUsd\":545,\"quantity\":3,\"imageUrl\":\"https://free-images.com/tn/4fa5/trumpet_music_brass_orchestra.jpg\",\"inCart\":1}]}}"
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"remove\",\"sku\":\"12345-00001\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1}]}}"
 ```
 
-Then the `checkout-events-source`:
-
-```
-curl ${ingress}/checkout-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "Mark", "type": "checkout"}'
-```
-
-#### Check the events published on the streams
+#### Check the events published on the cart-events stream
 
 ##### Run dev-utils pod
 
@@ -319,18 +317,10 @@ kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v
 
 ##### Subscribe to streams
 
-First the cart-events:
+Subscribe to the cart-events:
 
 ```
 kubectl exec dev-utils -n default -- subscribe cart-events -n default --payload-as-string
-```
-
-Hit `ctrl-c` to stop subscribing
-
-Then the checkout-events:
-
-```
-kubectl exec dev-utils -n default -- subscribe checkout-events -n default --payload-as-string
 ```
 
 Hit `ctrl-c` to stop subscribing
