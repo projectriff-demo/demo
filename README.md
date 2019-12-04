@@ -141,7 +141,6 @@ riff app create inventory-api --git-repo https://github.com/projectriff-demo/inv
 
 ```
 riff core deployer create inventory-api --application-ref inventory-api \
-  --service-name inventory-api \
   --ingress-policy External \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
@@ -202,7 +201,6 @@ riff container create storefront --image projectriff/storefront
 ```
 riff core deployer create storefront --container-ref storefront \
   --target-port 4200 \
-  --service-name storefront \
   --ingress-policy External \
   --tail
 ```
