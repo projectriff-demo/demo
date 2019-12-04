@@ -179,11 +179,10 @@ ingress=$(minikube ip)
 
 #### Look up host and access api service
 
-Once we have the `ingress` variable set, we can look up the host for the app and issue curl command to access the api:
+Once we have the `ingress` variable set, we can issue curl command to access the api:
 
 ```
-host=$(kubectl get deployer.core inventory-api -ojsonpath={.status.serviceName})
-curl ${ingress}/api/article -H "Host: ${host}.default.example.com" -H 'Accept: application/json' && echo
+curl ${ingress}/api/article -H "Host: inventory-api.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 ### Build storefront app
@@ -230,4 +229,72 @@ minikube ip && echo
 
 ```
 ./curl-data.sh data/new-article-flute.json
+```
+
+### A stream example
+
+#### Create a stream
+
+```
+riff streaming stream create clicks --provider franz-kafka-provisioner --content-type 'application/json'
+```
+
+#### Create a HTTP source
+
+```
+riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183@sha256:1f9a771b43b2a1c56580761e2bdd51c5dd56dc58f3d8d7583b75185ce01f83b0'
+```
+
+```
+gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
+  -l streaming.projectriff.io/kafka-provider-gateway=franz)
+riff core deployer create http-source-clicks --container-ref http-source \
+  --ingress-policy External \
+  --env OUTPUTS=/clicks=${gateway}:6565/default_clicks \
+  --env OUTPUT_CONTENT_TYPES=application/json \
+  --tail
+```
+
+#### Look up ingress
+
+For GKE:
+
+```
+ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+```
+
+For Docker Desktop:
+
+```
+ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
+```
+
+For Minikube:
+
+```
+ingress=$(minikube ip)
+```
+
+#### Send some data
+
+Once we have the `ingress` variable set, we can issue curl command to post data to the HTTP source:
+
+```
+curl ${ingress}/clicks -H "Host: http-source-clicks.default.example.com" -H 'Content-Type: application/json' -d '{"id": 1}'
+```
+
+#### Check the stream
+
+##### Run dev-utils pod
+
+```
+kubectl create serviceaccount dev-utils --namespace default
+kubectl create rolebinding dev-utils --namespace default --clusterrole=view --serviceaccount=default:dev-utils
+kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
+```
+
+##### Subscribe to stream
+
+```
+kubectl exec dev-utils -n default -- subscribe clicks -n default --payload-as-string
 ```
