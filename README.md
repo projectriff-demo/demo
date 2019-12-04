@@ -227,30 +227,47 @@ minikube ip && echo
 
 ### Add a new article
 
+To add a new article to the inventory run the following:
+
 ```
 ./curl-data.sh data/new-article-flute.json
 ```
 
-### A stream example
+### The shopping streams
 
-#### Create a stream
+#### Create two streams
 
 ```
-riff streaming stream create clicks --provider franz-kafka-provisioner --content-type 'application/json'
+riff streaming stream create cart-events --provider franz-kafka-provisioner --content-type 'application/json'
+riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
 ```
 
-#### Create a HTTP source
+#### Create two HTTP sources
+
+Create a `container` resource using the HTTP Source image:
 
 ```
 riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183@sha256:1f9a771b43b2a1c56580761e2bdd51c5dd56dc58f3d8d7583b75185ce01f83b0'
 ```
 
+Lookup the gateway for the kafka-provider:
+
 ```
 gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
-  -l streaming.projectriff.io/kafka-provider-gateway=franz)
-riff core deployer create http-source-clicks --container-ref http-source \
+  -l streaming.projectriff.io/kafka-provider-gateway=franz)  
+```
+
+Once we have the `gateway` variable set, we can create an HTTP source for each stream:
+
+```
+riff core deployer create cart-events-source --container-ref http-source \
   --ingress-policy External \
-  --env OUTPUTS=/clicks=${gateway}:6565/default_clicks \
+  --env OUTPUTS=/cart=${gateway}:6565/default_cart-events \
+  --env OUTPUT_CONTENT_TYPES=application/json \
+  --tail
+riff core deployer create checkout-events-source --container-ref http-source \
+  --ingress-policy External \
+  --env OUTPUTS=/checkout=${gateway}:6565/default_checkout-events \
   --env OUTPUT_CONTENT_TYPES=application/json \
   --tail
 ```
@@ -277,10 +294,20 @@ ingress=$(minikube ip)
 
 #### Send some data
 
-Once we have the `ingress` variable set, we can issue curl command to post data to the HTTP source:
+Once we have the `ingress` variable set, we can issue curl command to post data to the HTTP sources:
+
+First the `cart-events-source`:
 
 ```
-curl ${ingress}/clicks -H "Host: http-source-clicks.default.example.com" -H 'Content-Type: application/json' -d '{"id": 1}'
+curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "add", "sku": "12345-00002"}'
+curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "add", "sku": "12345-00001"}'
+curl ${ingress}/cart -H "Host: cart-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "remove", "sku": "12345-00002"}'
+```
+
+Then the `checkout-events-source`:
+
+```
+curl ${ingress}/checkout -H "Host: checkout-events-source.default.example.com" -H 'Content-Type: application/json' -d '{"cart-id": 1, "type": "checkout"}'
 ```
 
 #### Check the stream
@@ -293,8 +320,20 @@ kubectl create rolebinding dev-utils --namespace default --clusterrole=view --se
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
-##### Subscribe to stream
+##### Subscribe to streams
+
+First the cart-events:
 
 ```
-kubectl exec dev-utils -n default -- subscribe clicks -n default --payload-as-string
+kubectl exec dev-utils -n default -- subscribe cart-events -n default --payload-as-string
 ```
+
+Hit `ctrl-c` to stop subscribing
+
+Then the checkout-events:
+
+```
+kubectl exec dev-utils -n default -- subscribe checkout-events -n default --payload-as-string
+```
+
+Hit `ctrl-c` to stop subscribing
