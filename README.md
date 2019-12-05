@@ -207,7 +207,7 @@ riff streaming stream create checkout-events --provider franz-kafka-provisioner 
 Create a `container` resource using the HTTP Source image:
 
 ```
-riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183@sha256:1f9a771b43b2a1c56580761e2bdd51c5dd56dc58f3d8d7583b75185ce01f83b0'
+riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
 ```
 
 Lookup the gateway for the kafka-provider:
