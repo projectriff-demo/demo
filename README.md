@@ -297,7 +297,7 @@ ingress=$(minikube ip)
 
 Once we have the `ingress` variable set, we can issue curl command to post data to the HTTP sources:
 
-First the `cart-events-source`:
+For the `cart-events-source`:
 
 ```
 curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"add\",\"sku\":\"12345-00002\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1}]}}"
