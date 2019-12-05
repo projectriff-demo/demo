@@ -133,14 +133,18 @@ riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
 
 ### Build inventory-api app
 
+For build instruction see: https://github.com/projectriff-demo/inventory-management/blob/master/README.md
+
+We have a pre-built image available as `projectriff/inventory-api` and will use that for these instructions.
+
 ```
-riff app create inventory-api --git-repo https://github.com/projectriff-demo/inventory-management.git --tail
+riff container create storefront --image projectriff/inventory-api:v001
 ```
 
 ### Deploy inventory-api service
 
 ```
-riff core deployer create inventory-api --application-ref inventory-api \
+riff core deployer create inventory-api --container-ref inventory-api \
   --ingress-policy External \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
@@ -234,7 +238,7 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriff/storefront:v002
+riff container create storefront --image projectriff/storefront:v003
 ```
 
 ### Deploy storefront service
@@ -297,12 +301,12 @@ ingress=$(minikube ip)
 
 Once we have the `ingress` variable set, we can issue curl command to post data to the HTTP sources:
 
-For the `cart-events-source`:
+For the `cart-events`:
 
 ```
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"add\",\"sku\":\"12345-00002\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1}]}}"
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"add\",\"sku\":\"12345-00001\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1},{\"sku\":\"12345-00001\",\"name\":\"Trumpet\",\"description\":\"A fine musical instrument, perfect for playing Jazz riffs.\",\"priceInUsd\":545,\"quantity\":3,\"imageUrl\":\"https://free-images.com/tn/4fa5/trumpet_music_brass_orchestra.jpg\",\"inCart\":1}]}}"
-curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d "{\"action\":\"remove\",\"sku\":\"12345-00001\",\"newCart\":{\"items\":[{\"sku\":\"12345-00002\",\"name\":\"Guitar\",\"description\":\"A nice guitar, great for riffing.\",\"priceInUsd\":315,\"quantity\":7,\"imageUrl\":\"https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg\",\"inCart\":1}]}}"
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "demo", "action": "add", "product": "12345-00001", "quantity": 1}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "demo", "action": "add", "product": "12345-00002", "quantity": 1}'
+curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "demo", "action": "remove", "product": "12345-00001", "quantity": 1}'
 ```
 
 #### Check the events published on the cart-events stream
