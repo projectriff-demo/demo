@@ -138,7 +138,7 @@ For build instruction see: https://github.com/projectriff-demo/inventory-managem
 We have a pre-built image available as `projectriff/inventory-api` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriff/inventory-api:v001
+riff container create inventory-api --image projectriff/inventory-api:v001
 ```
 
 ### Deploy inventory-api service
