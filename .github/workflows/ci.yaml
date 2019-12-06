@@ -26,6 +26,12 @@ jobs:
     - name: 'Fetch FATS'
       run: .github/workflows/fats-fetch.sh ${FATS_DIR} ${FATS_REFSPEC} ${FATS_REPO}
       timeout-minutes: 1
+    - name: 'Install tools'
+      run: |
+        ${FATS_DIR}/install.sh kubectl
+        ${FATS_DIR}/install.sh kapp
+        ${FATS_DIR}/install.sh ytt
+        ${FATS_DIR}/install.sh helm
     - name: Setup env
       run: |
         job=$(date +%s) # TODO use something that is assigned by CI to guarantee uniqueness
