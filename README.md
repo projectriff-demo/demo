@@ -31,7 +31,7 @@ rm riff-darwin-amd64.tgz
 
 for Linux:
 
-```
+```bash#ci
 wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-linux-amd64.tgz
 tar xvzf riff-linux-amd64.tgz
 rm riff-linux-amd64.tgz
@@ -39,7 +39,7 @@ rm riff-linux-amd64.tgz
 
 #### Move the riff CLI executable to your PATH
 
-```
+```bash#ci
 sudo mv ./riff /usr/local/bin/riff
 ```
 
@@ -116,16 +116,15 @@ For a cluster like "Minikube" or "Docker Desktop" that doesn't support LoadBalan
 
 ### Add Docker Hub credentials for builds
 
-```
-DOCKER_USER=$USER
-riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image-prefix
+```bash#ci
+riff credentials apply docker-push --docker-hub $DOCKER_USERNAME --set-default-image-prefix
 ```
 
 ## Run the demo
 
 ### Install inventory database
 
-```
+```bash#ci
 helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
 ```
 
@@ -135,7 +134,7 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 
 ### Create kafka-provider
 
-```
+```bash#ci
 riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
 ```
 
@@ -145,13 +144,14 @@ For build instruction see: https://github.com/projectriff-demo/inventory-managem
 
 We have a pre-built image available as `projectriffdemo/inventory-api` and will use that for these instructions.
 
-```
+
+```bash#ci
 riff container create inventory-api --image projectriffdemo/inventory-api:v001
 ```
 
 ### Deploy inventory-api service
 
-```
+```bash#ci
 riff core deployer create inventory-api --container-ref inventory-api \
   --ingress-policy External \
   --env SPRING_PROFILES_ACTIVE=cloud \
@@ -163,7 +163,7 @@ riff core deployer create inventory-api --container-ref inventory-api \
 
 ### Load some test data
 
-```
+```bash#ci
 ./curl-data.sh data/sample-data.json
 ```
 
@@ -173,7 +173,7 @@ riff core deployer create inventory-api --container-ref inventory-api \
 
 For GKE:
 
-```
+```bash#ci
 ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 ```
 
@@ -193,7 +193,7 @@ ingress=$(minikube ip)
 
 Once we have the `ingress` variable set, we can issue curl command to access the api:
 
-```
+```bash#ci
 curl ${ingress}/api/article -H "Host: inventory-api.default.example.com" -H 'Accept: application/json' && echo
 ```
 
@@ -201,7 +201,7 @@ curl ${ingress}/api/article -H "Host: inventory-api.default.example.com" -H 'Acc
 
 To add a new article to the inventory run the following:
 
-```
+```bash#ci
 ./curl-data.sh data/new-article-flute.json
 ```
 
@@ -209,7 +209,7 @@ To add a new article to the inventory run the following:
 
 #### Create three streams
 
-```
+```bash#ci
 riff streaming stream create cart-events --provider franz-kafka-provisioner --content-type 'application/json'
 riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
 riff streaming stream create orders --provider franz-kafka-provisioner --content-type application/json
@@ -219,20 +219,20 @@ riff streaming stream create orders --provider franz-kafka-provisioner --content
 
 Create a `container` resource using the HTTP Source image:
 
-```
+```bash#ci
 riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
 ```
 
 Lookup the gateway for the kafka-provider:
 
-```
+```bash#ci
 gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
   -l streaming.projectriff.io/kafka-provider-gateway=franz)  
 ```
 
 Once we have the `gateway` variable set, we can create the HTTP source:
 
-```
+```bash#ci
 riff core deployer create events-api --container-ref http-source \
   --ingress-policy External \
   --env OUTPUTS=/cart-events=${gateway}:6565/default_cart-events,/checkout-events=${gateway}:6565/default_checkout-events \
@@ -246,13 +246,13 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 
 We have a pre-built image available as `projectriffdemo/storefront` and will use that for these instructions.
 
-```
+```bash#ci
 riff container create storefront --image projectriffdemo/storefront:v005
 ```
 
 ### Deploy storefront service
 
-```
+```bash#ci
 riff core deployer create storefront --container-ref storefront \
   --target-port 4200 \
   --ingress-policy External \
@@ -265,7 +265,7 @@ Enter the IP address for the entry based on the following:
 
 For GKE:
 
-```
+```bash#ci
 kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
 
