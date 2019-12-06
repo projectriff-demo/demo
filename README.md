@@ -55,7 +55,7 @@ Follow the riff instructions for:
 
 ### Initialize the Helm Tiller server in your cluster
 
-```
+```bash#ci
 kubectl create serviceaccount tiller -n kube-system
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount kube-system:tiller
 helm init --wait --service-account tiller
@@ -67,7 +67,7 @@ helm init --wait --service-account tiller
 
 Install NGINX Ingress using:
 
-```
+```bash#ci
 helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
 ```
 
@@ -104,7 +104,7 @@ Install riff and all dependent packages including cert-manager, kpack, keda, kaf
 
 For a cluster that supports LoadBalancer use:
 
-```
+```bash#ci
 ./riff-kapp-install.sh
 ```
 

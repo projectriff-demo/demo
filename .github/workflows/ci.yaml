@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - '**'
+    - '!dependabot/**'
+  pull_request: {}
+
+env:
+  FATS_DIR: fats
+  FATS_REPO: projectriff/fats
+  FATS_REFSPEC: 06aacf672daaf1ab70ad4e7db9846037eaf1340a # master as of 2019-11-22  
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  GCLOUD_CLIENT_SECRET: ${{ secrets.GCLOUD_CLIENT_SECRET }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: 'Fetch FATS'
+      run: .github/workflows/fats-fetch.sh ${FATS_DIR} ${FATS_REFSPEC} ${FATS_REPO}
+      timeout-minutes: 1
+    - name: Setup env
+      run: |
+        job=$(date +%s) # TODO use something that is assigned by CI to guarantee uniqueness
+        echo "JOB_ID=${job}"
+
+        echo "##[set-env name=CLUSTER]gke"
+        echo "##[set-env name=REGISTRY]dockerhub"
+        echo "##[set-env name=CLUSTER_NAME]demo-${job}"
+        echo "##[set-env name=NAMESPACE]demo-${job}"
+      shell: bash
+    - name: Setup cluster
+      run: ${FATS_DIR}/start.sh
+      shell: bash
+      timeout-minutes: 45
+
+    - name: Install rundoc
+      run: pip3 install rundoc
+    - name: Test README
+      run: |
+        set -x
+        rundoc run -t bash#ci README.md
+    - name: 'Cleanup FATS'
+      run: ${FATS_DIR}/cleanup.sh
+      if: always()
+      timeout-minutes: 10
