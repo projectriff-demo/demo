@@ -199,11 +199,12 @@ To add a new article to the inventory run the following:
 
 ### The shopping streams
 
-#### Create two streams
+#### Create three streams
 
 ```
 riff streaming stream create cart-events --provider franz-kafka-provisioner --content-type 'application/json'
 riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
+riff streaming stream create orders --provider franz-kafka-provisioner --content-type application/json
 ```
 
 #### Create an events-api HTTP source
@@ -271,6 +272,49 @@ For Minikube:
 minikube ip && echo
 ```
 
+### Build cart processing function
+
+```
+riff function create cart \
+  --handler io.projectriff.cartprocessor.CartProcessor \
+  --git-repo https://github.com/projectriff-demo/cart-processor.git \
+  --tail
+```
+
+### Create a stream processor for the cart
+
+```
+riff streaming processor create cart \
+    --function-ref cart \
+    --input cart-events \
+    --input checkout-events \
+    --output orders \
+    --tail
+```
+
+### Watch the orders stream
+
+Set up service account (skip if you already have this configured)
+
+```
+kubectl create serviceaccount dev-utils --namespace default
+kubectl create rolebinding dev-utils --namespace default --clusterrole=view --serviceaccount=default:dev-utils
+```
+
+Run dev-utils pod:
+
+```
+kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
+```
+
+Subscribe to the order:
+
+```
+kubectl exec dev-utils -n default -- subscribe cart-events -n default --payload-as-string
+```
+
+> Hit `ctrl-c` to stop subscribing
+
 ### Go shopping!
 
 Open http://storefront.default.example.com in your browser.
@@ -327,4 +371,4 @@ Subscribe to the cart-events:
 kubectl exec dev-utils -n default -- subscribe cart-events -n default --payload-as-string
 ```
 
-Hit `ctrl-c` to stop subscribing
+> Hit `ctrl-c` to stop subscribing
