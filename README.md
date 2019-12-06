@@ -307,10 +307,10 @@ Run dev-utils pod:
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
-Subscribe to the order:
+Subscribe to the orders:
 
 ```
-kubectl exec dev-utils -n default -- subscribe cart-events -n default --payload-as-string
+kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-string
 ```
 
 > Hit `ctrl-c` to stop subscribing
