@@ -1,0 +1,107 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  generateName: cart-processor-
+  labels:
+    streaming.projectriff.io/processor: cart
+  name: cart-processor-test
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      streaming.projectriff.io/processor: cart
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        streaming.projectriff.io/processor: cart
+    spec:
+      containers:
+      - image: projectriffdemo/cart:latest
+        imagePullPolicy: IfNotPresent
+        name: function
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - env:
+        - name: CNB_BINDINGS
+          value: /var/riff/bindings
+        - name: INPUTS
+          value: franz-kafka-gateway-8r97l.default:6565/default_cart-events,franz-kafka-gateway-8r97l.default:6565/default_checkout-events
+        - name: OUTPUTS
+          value: franz-kafka-gateway-8r97l.default:6565/default_orders
+        - name: INPUT_NAMES
+          value: cart-events,checkout-events
+        - name: OUTPUT_NAMES
+          value: orders
+        - name: GROUP
+          value: cart
+        - name: FUNCTION
+          value: localhost:8081
+        - name: OUTPUT_CONTENT_TYPES
+          value: '["application/json"]'
+        image: index.docker.io/projectriff/streaming-processor-native@sha256:88c83bd91af75304244bb450d3117f7e35b304f848300af96365fff9fba87e70
+        imagePullPolicy: IfNotPresent
+        name: processor
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/riff/bindings/input_000/metadata
+          name: processor-stream-cart-events-metadata
+          readOnly: true
+        - mountPath: /var/riff/bindings/input_000/secret
+          name: processor-stream-cart-events-secret
+          readOnly: true
+        - mountPath: /var/riff/bindings/input_001/metadata
+          name: processor-stream-checkout-events-metadata
+          readOnly: true
+        - mountPath: /var/riff/bindings/input_001/secret
+          name: processor-stream-checkout-events-secret
+          readOnly: true
+        - mountPath: /var/riff/bindings/output_000/metadata
+          name: processor-stream-orders-metadata
+          readOnly: true
+        - mountPath: /var/riff/bindings/output_000/secret
+          name: processor-stream-orders-secret
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: cart-events-stream-binding-metadata
+        name: processor-stream-cart-events-metadata
+      - name: processor-stream-cart-events-secret
+        secret:
+          defaultMode: 420
+          secretName: cart-events-stream-binding-secret
+      - configMap:
+          defaultMode: 420
+          name: checkout-events-stream-binding-metadata
+        name: processor-stream-checkout-events-metadata
+      - name: processor-stream-checkout-events-secret
+        secret:
+          defaultMode: 420
+          secretName: checkout-events-stream-binding-secret
+      - configMap:
+          defaultMode: 420
+          name: orders-stream-binding-metadata
+        name: processor-stream-orders-metadata
+      - name: processor-stream-orders-secret
+        secret:
+          defaultMode: 420
+          secretName: orders-stream-binding-secret
