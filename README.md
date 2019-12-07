@@ -352,7 +352,7 @@ curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Conten
 curl ${ingress}/cart-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "demo", "product": "12345-00002", "quantity": 1}'
 ```
 
-For the `shcekout-events`:
+For the `ckeckout-events`:
 
 ```
 curl ${ingress}/checkout-events -H "Host: events-api.default.example.com" -H 'Content-Type: application/json' -d '{"user": "demo"}'
