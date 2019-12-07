@@ -313,7 +313,15 @@ Subscribe to the orders:
 kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-string
 ```
 
+#### When you're done watching the orders stream
+
 > Hit `ctrl-c` to stop subscribing
+
+Kill the subscription:
+
+```
+kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
+```
 
 ### Go shopping!
 
@@ -362,9 +370,16 @@ curl ${ingress}/checkout-events -H "Host: events-api.default.example.com" -H 'Co
 
 #### Run dev-utils pod
 
+Set up service account (skip if you already have this configured)
+
 ```
 kubectl create serviceaccount dev-utils --namespace default
 kubectl create rolebinding dev-utils --namespace default --clusterrole=view --serviceaccount=default:dev-utils
+```
+
+Create dev-utils pod:
+
+```
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
@@ -376,4 +391,12 @@ Subscribe to the orders:
 kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-string
 ```
 
+#### Stop the subscription
+
 > Hit `ctrl-c` to stop subscribing
+
+Kill the subscription:
+
+```
+kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
+```
