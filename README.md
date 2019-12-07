@@ -135,10 +135,10 @@ riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
 
 For build instruction see: https://github.com/projectriff-demo/inventory-management/blob/master/README.md
 
-We have a pre-built image available as `projectriff/inventory-api` and will use that for these instructions.
+We have a pre-built image available as `projectriffdemo/inventory-api` and will use that for these instructions.
 
 ```
-riff container create inventory-api --image projectriff/inventory-api:v001
+riff container create inventory-api --image projectriffdemo/inventory-api:v001
 ```
 
 ### Deploy inventory-api service
@@ -236,10 +236,10 @@ riff core deployer create events-api --container-ref http-source \
 
 For build instruction see: https://github.com/projectriff-demo/storefront/blob/master/README.md
 
-We have a pre-built image available as `projectriff/storefront` and will use that for these instructions.
+We have a pre-built image available as `projectriffdemo/storefront` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriffdemo/storefront:v004
+riff container create storefront --image projectriffdemo/storefront:v005
 ```
 
 ### Deploy storefront service
@@ -283,6 +283,8 @@ riff function create cart \
 
 ### Create a stream processor for the cart
 
+If you built the function yourself, then use this command to create the processor:
+
 ```
 riff streaming processor create cart \
     --function-ref cart \
@@ -290,6 +292,24 @@ riff streaming processor create cart \
     --input checkout-events \
     --output orders \
     --tail
+```
+
+If you didn't build the function, then can use a pre-built image available as `projectriffdemo/cart`:
+
+```
+riff container create cart --image projectriffdemo/cart:v002
+riff streaming processor create cart \
+    --container-ref cart \
+    --input cart-events \
+    --input checkout-events \
+    --output orders \
+    --tail
+```
+
+> NOTE: If there are issues with processor scaling then you can use a plain Deployment resource instead of the riff Streaming Processor. Use the command below:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/projectriff-demo/demo/master/deployment-cart-processor.yaml
 ```
 
 ### Watch the orders stream
