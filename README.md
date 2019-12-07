@@ -125,6 +125,10 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
 ```
 
+> NOTE: If you delete the database using `helm delete --purge inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
+>
+> Delete the PVC with `kubectl delete pvc data-inventory-db-postgresql-0`.
+
 ### Create kafka-provider
 
 ```
