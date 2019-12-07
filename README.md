@@ -298,7 +298,7 @@ riff streaming processor create cart \
     --tail
 ```
 
-If you didn't build the function, then can use a pre-built image available as `projectriffdemo/cart`:
+If you didn't build the function, then can you use a pre-built image available as `projectriffdemo/cart`:
 
 ```
 riff container create cart --image projectriffdemo/cart:v002
