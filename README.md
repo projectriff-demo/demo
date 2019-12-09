@@ -262,7 +262,7 @@ sudo echo "$ingress storefront.default.example.com" >> /etc/hosts
 ```
 
 ### Build cart processing function
-
+You can choose to build the function from source, or use the pre-built image. To build the function use:
 ```
 riff function create cart \
   --handler io.projectriff.cartprocessor.CartProcessor \
@@ -270,7 +270,7 @@ riff function create cart \
   --tail
 ```
 
-### Create a stream processor for the cart
+#### Create a stream processor for the cart
 
 If you built the function yourself, then use this command to create the processor:
 
@@ -283,6 +283,7 @@ riff streaming processor create cart \
     --tail
 ```
 
+### Use Pre Built cart function
 If you didn't build the function, then can you use a pre-built image available as `projectriffdemo/cart`:
 
 ```
