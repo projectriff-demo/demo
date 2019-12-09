@@ -351,7 +351,7 @@ kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
 
 Open http://storefront.default.example.com in your browser.
 
-## Some additional functions to expreiment with
+## Some additional functions to experiment with
 
 - [trend-detector](trend-detector.md)
 
