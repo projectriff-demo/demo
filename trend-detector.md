@@ -31,10 +31,11 @@ Use this command to create the processor:
 
 ```
 riff streaming processor create trends \
-    --function-ref trends \
-    --input orders \
-    --output trends \
-    --tail
+  --function-ref trends \
+  --input orders \
+  --output trends \
+  --env-from REDIS_PASSWORD=secretKeyRef:count-redis:redis-password \
+  --tail
 ```
 
 ### Watch the trends stream
