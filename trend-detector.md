@@ -25,13 +25,13 @@ riff function create trends \
   --tail
 ```
 
-### Create a stream processor for the cart
+### Create a stream processor for the trends
 
 If you built the function yourself, then use this command to create the processor:
 
 ```
 riff streaming processor create trends \
-    --function-ref cart \
+    --function-ref trends \
     --input orders \
     --output trends \
     --tail
@@ -39,7 +39,7 @@ riff streaming processor create trends \
 
 ### Watch the trends stream
 
-Set up service account (skip if you already have this configured)
+Set up a service account (skip if you already have this configured):
 
 ```
 kubectl create serviceaccount dev-utils --namespace default
@@ -52,7 +52,7 @@ Run dev-utils pod:
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
-Subscribe to the orders:
+Subscribe to the trends:
 
 ```
 kubectl exec dev-utils -n default -- subscribe trends -n default --payload-as-string
