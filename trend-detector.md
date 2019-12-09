@@ -34,6 +34,8 @@ riff streaming processor create trends \
   --function-ref trends \
   --input orders \
   --output trends \
+  --env REDIS_MASTER=count-redis-master.default.svc.cluster.local:6379
+  --env REDIS_SLAVE=count-redis-slave.default.svc.cluster.local:6379
   --env-from REDIS_PASSWORD=secretKeyRef:count-redis:redis-password \
   --tail
 ```
