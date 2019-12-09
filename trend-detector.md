@@ -7,7 +7,7 @@ First install [riff and the shopping demo](README.md)
 ### Install Redis
 
 ```
-helm install --name count --namespace default --set password=tanzu2020 stable/redis
+helm install --name count --namespace default --set usePassword=false stable/redis
 ```
 
 #### Create the trends stream
