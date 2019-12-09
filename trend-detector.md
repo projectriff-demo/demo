@@ -25,13 +25,13 @@ riff function create trends \
   --tail
 ```
 
-### Create a stream processor for the cart
+### Create a stream processor for the trend-detector
 
-If you built the function yourself, then use this command to create the processor:
+Use this command to create the processor:
 
 ```
 riff streaming processor create trends \
-    --function-ref cart \
+    --function-ref trends \
     --input orders \
     --output trends \
     --tail
