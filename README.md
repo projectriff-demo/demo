@@ -257,23 +257,8 @@ riff core deployer create storefront --container-ref storefront \
 
 Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
 
-Enter the IP address for the entry based on the following:
-
-For GKE:
-
 ```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
-```
-
-For Docker Desktop:
-
-`127.0.0.1`
-
-
-For Minikube:
-
-```
-minikube ip && echo
+sudo echo "$ingress storefront.default.example.com" >> /etc/hosts
 ```
 
 ### Build cart processing function
