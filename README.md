@@ -354,6 +354,7 @@ Open http://storefront.default.example.com in your browser.
 ## Some additional functions to experiment with
 
 - [trend-detector](trend-detector.md)
+- [no-buy-detector](no-buy-detector.md)
 
 ## Manually testing streams and events-api
 
