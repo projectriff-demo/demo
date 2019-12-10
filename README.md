@@ -280,8 +280,8 @@ minikube ip && echo
 
 ```
 riff function create cart \
-  --handler io.projectriff.cartprocessor.CartProcessor \
   --git-repo https://github.com/projectriff-demo/cart-processor.git \
+  --handler io.projectriff.cartprocessor.CartProcessor \
   --tail
 ```
 
@@ -291,11 +291,11 @@ If you built the function yourself, then use this command to create the processo
 
 ```
 riff streaming processor create cart \
-    --function-ref cart \
-    --input cart-events \
-    --input checkout-events \
-    --output orders \
-    --tail
+  --function-ref cart \
+  --input cart-events \
+  --input checkout-events \
+  --output orders \
+  --tail
 ```
 
 If you didn't build the function, then can you use a pre-built image available as `projectriffdemo/cart`:
@@ -303,11 +303,11 @@ If you didn't build the function, then can you use a pre-built image available a
 ```
 riff container create cart --image projectriffdemo/cart:v002
 riff streaming processor create cart \
-    --container-ref cart \
-    --input cart-events \
-    --input checkout-events \
-    --output orders \
-    --tail
+  --container-ref cart \
+  --input cart-events \
+  --input checkout-events \
+  --output orders \
+  --tail
 ```
 
 > NOTE: If there are issues with processor scaling then you can use a plain Deployment resource instead of the riff Streaming Processor. Use the command below:
