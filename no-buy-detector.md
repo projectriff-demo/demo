@@ -53,7 +53,7 @@ Subscribe to the no-buy events:
 kubectl exec dev-utils -n default -- subscribe no-buy -n default --payload-as-string
 ```
 
-#### When you're done watching the trends stream
+#### When you're done watching the no-buy stream
 
 > Hit `ctrl-c` to stop subscribing
 
