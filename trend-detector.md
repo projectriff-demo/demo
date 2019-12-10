@@ -10,10 +10,10 @@ First install [riff and the shopping demo](README.md)
 helm install --name count --namespace default --set usePassword=false stable/redis
 ```
 
-#### Create the trends stream
+#### Create the popular-products stream
 
 ```
-riff streaming stream create trends --provider franz-kafka-provisioner --content-type 'application/json'
+riff streaming stream create popular-products --provider franz-kafka-provisioner --content-type 'application/json'
 ```
 
 ### Build the trend-detector function
@@ -33,7 +33,7 @@ Use this command to create the processor:
 riff streaming processor create trends \
   --function-ref trends \
   --input orders \
-  --output trends \
+  --output popular-products \
   --tail
 ```
 
@@ -52,13 +52,13 @@ Run dev-utils pod:
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
-Subscribe to the orders:
+Subscribe to the popular-products:
 
 ```
-kubectl exec dev-utils -n default -- subscribe trends -n default --payload-as-string
+kubectl exec dev-utils -n default -- subscribe popular-products -n default --payload-as-string
 ```
 
-#### When you're done watching the trends stream
+#### When you're done watching the popular-products stream
 
 > Hit `ctrl-c` to stop subscribing
 
