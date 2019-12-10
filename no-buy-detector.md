@@ -47,7 +47,7 @@ Run dev-utils pod:
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
-Subscribe to the orders:
+Subscribe to the no-buy events:
 
 ```
 kubectl exec dev-utils -n default -- subscribe no-buy -n default --payload-as-string
