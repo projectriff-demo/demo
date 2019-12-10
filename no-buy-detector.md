@@ -24,7 +24,7 @@ riff function create no-buy \
 Use this command to create the processor:
 
 ```
-riff streaming processor create trends \
+riff streaming processor create no-buy \
   --function-ref no-buy \
   --input cart-events \
   --input checkout-events \
