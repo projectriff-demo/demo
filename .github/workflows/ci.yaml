@@ -50,7 +50,7 @@ jobs:
     - name: Install rundoc
       run: pip3 install rundoc
     - name: Test README
-      run: rundoc run -t bash#ci README.md
+      run: rundoc run --retry 2 --tags bash#ci README.md
     - name: 'Cleanup FATS'
       run: ${FATS_DIR}/cleanup.sh
       if: always()
