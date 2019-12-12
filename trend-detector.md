@@ -55,15 +55,7 @@ kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v
 Subscribe to the popular-products:
 
 ```
-kubectl exec dev-utils -n default -- subscribe popular-products -n default --payload-as-string
+kubectl exec dev-utils -it -n default -- subscribe popular-products -n default --payload-as-string
 ```
-
-#### When you're done watching the popular-products stream
 
 > Hit `ctrl-c` to stop subscribing
-
-Kill the subscription:
-
-```
-kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
-```

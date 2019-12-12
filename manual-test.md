@@ -73,5 +73,5 @@ kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-st
 Kill the subscription:
 
 ```
-kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
+kubectl exec dev-utils -- pkill -SIGTERM subscribe
 ```
