@@ -136,7 +136,7 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 ### Create kafka-provider
 
 ```bash#ci
-riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092 --tail
+riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
 ```
 
 ### Build inventory-api app
