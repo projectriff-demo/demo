@@ -338,18 +338,9 @@ kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v
 Subscribe to the orders:
 
 ```
-kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-string
+kubectl exec dev-utils -it -n default -- subscribe orders -n default --payload-as-string
 ```
-
-#### When you're done watching the orders stream
-
 > Hit `ctrl-c` to stop subscribing
-
-Kill the subscription:
-
-```
-kubectl exec dev-utils -- sh -c 'kill $(pidof subscribe)'
-```
 
 ### Go shopping!
 
