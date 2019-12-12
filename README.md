@@ -247,7 +247,7 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 We have a pre-built image available as `projectriffdemo/storefront` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriffdemo/storefront:v005
+riff container create storefront --image projectriffdemo/storefront:v006
 ```
 
 ### Deploy storefront service
