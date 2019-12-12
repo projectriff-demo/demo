@@ -39,7 +39,7 @@ riff streaming processor create trends \
 
 ### Watch the trends stream
 
-Set up service account (skip if you already have this configured)
+Set up a service account (skip if you already have this configured)
 
 ```
 kubectl create serviceaccount dev-utils --namespace default
