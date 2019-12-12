@@ -116,8 +116,9 @@ For a cluster like "Minikube" or "Docker Desktop" that doesn't support LoadBalan
 
 ### Add Docker Hub credentials for builds
 
+Setup credentials to push the built images. We will use dockerhub in this example. Set $DOCKER_USERNAME and $DOCKER_PASSWORD env variables:
 ```bash#ci
-riff credentials apply docker-push --docker-hub $DOCKER_USERNAME --set-default-image-prefix
+echo -n "${DOCKER_PASSWORD}" | riff credentials apply docker-push --docker-hub $DOCKER_USERNAME --set-default-image-prefix
 ```
 
 ## Run the demo
@@ -125,7 +126,7 @@ riff credentials apply docker-push --docker-hub $DOCKER_USERNAME --set-default-i
 ### Install inventory database
 
 ```bash#ci
-helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
+helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql --wait
 ```
 
 > NOTE: If you delete the database using `helm delete --purge inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
@@ -135,7 +136,7 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 ### Create kafka-provider
 
 ```bash#ci
-riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
+riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092 --tail
 ```
 
 ### Build inventory-api app
@@ -146,7 +147,7 @@ We have a pre-built image available as `projectriffdemo/inventory-api` and will 
 
 
 ```bash#ci
-riff container create inventory-api --image projectriffdemo/inventory-api:v001
+riff container create inventory-api --image projectriffdemo/inventory-api:v001 --tail
 ```
 
 ### Deploy inventory-api service
@@ -220,7 +221,7 @@ riff streaming stream create orders --provider franz-kafka-provisioner --content
 Create a `container` resource using the HTTP Source image:
 
 ```bash#ci
-riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
+riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183' --tail
 ```
 
 Lookup the gateway for the kafka-provider:
@@ -247,7 +248,7 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 We have a pre-built image available as `projectriffdemo/storefront` and will use that for these instructions.
 
 ```bash#ci
-riff container create storefront --image projectriffdemo/storefront:v005
+riff container create storefront --image projectriffdemo/storefront:v005 --tail
 ```
 
 ### Deploy storefront service
@@ -282,7 +283,7 @@ minikube ip && echo
 
 ### Build cart processing function
 
-```
+```bash#ci
 riff function create cart \
   --git-repo https://github.com/projectriff-demo/cart-processor.git \
   --handler io.projectriff.cartprocessor.CartProcessor \
@@ -293,7 +294,7 @@ riff function create cart \
 
 If you built the function yourself, then use this command to create the processor:
 
-```
+```bash#ci
 riff streaming processor create cart \
   --function-ref cart \
   --input cart-events \
@@ -324,20 +325,20 @@ kubectl apply -f https://raw.githubusercontent.com/projectriff-demo/demo/master/
 
 Set up service account (skip if you already have this configured)
 
-```
+```bash#ci
 kubectl create serviceaccount dev-utils --namespace default
 kubectl create rolebinding dev-utils --namespace default --clusterrole=view --serviceaccount=default:dev-utils
 ```
 
 Run dev-utils pod:
 
-```
+```bash#ci
 kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
 Subscribe to the orders:
 
-```
+```bash#ci
 kubectl exec dev-utils -n default -- subscribe orders -n default --payload-as-string
 ```
 
