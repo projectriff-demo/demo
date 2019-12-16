@@ -146,7 +146,7 @@ For build instruction see: https://github.com/projectriff-demo/inventory-managem
 We have a pre-built image available as `projectriffdemo/inventory-api` and will use that for these instructions.
 
 ```
-riff container create inventory-api --image projectriffdemo/inventory-api:v001
+riff container create inventory-api --image projectriffdemo/inventory-api:latest
 ```
 
 ### Deploy inventory-api service
@@ -247,7 +247,7 @@ For build instruction see: https://github.com/projectriff-demo/storefront/blob/m
 We have a pre-built image available as `projectriffdemo/storefront` and will use that for these instructions.
 
 ```
-riff container create storefront --image projectriffdemo/storefront:v006
+riff container create storefront --image projectriffdemo/storefront:latest
 ```
 
 ### Deploy storefront service
@@ -305,7 +305,7 @@ riff streaming processor create cart \
 If you didn't build the function, then can you use a pre-built image available as `projectriffdemo/cart`:
 
 ```
-riff container create cart --image projectriffdemo/cart:v002
+riff container create cart --image projectriffdemo/cart:latest
 riff streaming processor create cart \
   --container-ref cart \
   --input cart-events \
