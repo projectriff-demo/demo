@@ -1,11 +1,34 @@
 set -euo pipefail
 set -x
 
-# version and namespace
+# version
 riff_version=0.5.0-snapshot
+
+# borrowed from fats https://github.com/projectriff/fats/blob/master/.util.sh
+# derived from https://github.com/travis-ci/travis-build/blob/4f580b238530108cdd08719c326cd571d4e7b99f/lib/travis/build/bash/travis_retry.bash
+# MIT licenced https://github.com/travis-ci/travis-build/blob/4f580b238530108cdd08719c326cd571d4e7b99f/LICENSE
+retry() {
+  local result=0
+  local count=1
+  while [[ "${count}" -le 3 ]]; do
+    [[ "${result}" -ne 0 ]] && {
+      echo -e "\\n${ANSI_RED}The command \"${*}\" failed. Retrying, ${count} of 3.${ANSI_RESET}\\n" >&2
+    }
+    "${@}" && { result=0 && break; } || result="${?}"
+    count="$((count + 1))"
+    sleep 1
+  done
+
+  [[ "${count}" -gt 3 ]] && {
+    echo -e "\\n${ANSI_RED}The command \"${*}\" failed 3 times.${ANSI_RESET}\\n" >&2
+  }
+
+  return "${result}"
+}
+
+# namespace
 kubectl create ns apps || true
 
-# check for '--node-port'
 # check for '--node-port'
 if [ ${1-Missing} = "Missing" ]; then
   type="LoadBalancer"
@@ -19,7 +42,7 @@ else
 fi
 
 # build
-kapp deploy -y -n apps -a cert-manager -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/cert-manager.yaml
+retry kapp deploy -y -n apps -a cert-manager -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/cert-manager.yaml
 kapp deploy -y -n apps -a kpack -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/kpack.yaml
 kapp deploy -y -n apps -a riff-builders -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/riff-builders.yaml
 kapp deploy -y -n apps -a riff-build -f https://storage.googleapis.com/projectriff/charts/uncharted/${riff_version}/riff-build.yaml
