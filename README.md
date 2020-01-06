@@ -2,7 +2,7 @@
 
 In this demo we will build a music store ecommerce application by using project riff. The high level architecture of this demo is as follows:
 
-![riff-demo-architecture](images/riff-demo.png)
+![riff-demo-architecture](images/riff-demo-2.png)
 
 ## Initial Setup
 
@@ -322,23 +322,27 @@ kubectl apply -f https://raw.githubusercontent.com/projectriff-demo/demo/master/
 
 ### Watch the orders stream
 
-Set up service account (skip if you already have this configured)
+Set up role bindings for dev-utils:
 
 ```
-kubectl create serviceaccount dev-utils --namespace default
-kubectl create rolebinding dev-utils --namespace default --clusterrole=view --serviceaccount=default:dev-utils
+kubectl create clusterrolebinding dev-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding dev-util-core --clusterrole=riff-core-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding dev-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=default:default
+
+kubectl create role view-secrets-role --resource secrets --verb get,watch,list
+kubectl create rolebinding dev-util-secrets --role=view-secrets-role --serviceaccount=default:default
 ```
 
 Run dev-utils pod:
 
 ```
-kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
+kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1
 ```
 
 Subscribe to the orders:
 
 ```
-kubectl exec dev-utils -it -n default -- subscribe orders -n default --payload-as-string
+kubectl exec dev-utils -it -- subscribe orders --payload-as-string
 ```
 > Hit `ctrl-c` to stop subscribing
 
