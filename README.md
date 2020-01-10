@@ -51,8 +51,6 @@ Follow the riff instructions for:
 - [Minikube](https://projectriff.io/docs/v0.5/getting-started/minikube)
 - [Docker Desktop](https://projectriff.io/docs/v0.5/getting-started/docker-for-mac)
 
-> NOTE: kapp can't install keda on a Kubernetes cluster running version 1.16 so we need to force the Kubernetes version to be 1.14 or 1.15
-
 ### Initialize the Helm Tiller server in your cluster
 
 ```
@@ -61,9 +59,19 @@ kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceac
 helm init --wait --service-account tiller
 ```
 
-### Install NGINX Ingress Controller
+### Add the incubator charts to your helm configuration
 
-#### NGINX Ingress on GKE or Docker Desktop
+```
+helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+```
+
+### Install NGINX Ingress Controller for a local cluster
+
+On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the Istio ingress gateway.
+
+#### NGINX Ingress on Docker Desktop
+
+> NOTE: We are taking advantage of Docker Desktop supporting a single `LoadBalancer` service and exposing that on port 80 on `localhost`. To be able to use this feature it requires that you don't already have a service running on this port.
 
 Install NGINX Ingress using:
 
@@ -89,24 +97,33 @@ minikube addons enable ingress
 
 The NGINX ingress controller is exposed on port 80 on the minikube ip address
 
-### Clone the demo repo
-
-Clone this repo:
-
-```
-git clone https://github.com/projectriff-demo/demo.git riff-shopping-demo
-cd riff-shopping-demo
-```
-
 ### Install riff
 
-Install riff with Knative, Core and Streaming runtimes plus their dependencies.
+Install riff with Knative and Streaming runtimes plus their dependencies.
 
 1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started). This installs riff Build and required dependencies plus the Knative Runtime and its dependencies.
 
-1. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
-
 1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
+
+### Add ingress rule for istio-ingressgateway for a local cluster
+
+On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirtect to the `istio-ingressgateway`.
+
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: istio-ingress
+  namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  backend:
+    serviceName: istio-ingressgateway
+    servicePort: 80
+EOF
+```
 
 ### Add Docker Hub credentials for builds
 
@@ -116,6 +133,26 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 ```
 
 ## Run the demo
+
+#### Look up ingress
+
+For GKE:
+
+```
+export INGRESS=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+```
+
+For Docker Desktop:
+
+```
+export INGRESS=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
+```
+
+For Minikube:
+
+```
+export INGRESS=$(minikube ip)
+```
 
 ### Install inventory database
 
@@ -138,7 +175,7 @@ helm install --name kafka --namespace kafka incubator/kafka --set replicas=1 --s
 ### Create kafka-provider
 
 ```
-riff streaming kafka-provider create franz --bootstrap-servers kafka.kafka:9092
+riff streaming kafka-gateway create franz --bootstrap-servers kafka.kafka:9092
 ```
 
 ### Build inventory-api app
@@ -154,7 +191,8 @@ riff container create inventory-api --image projectriffdemo/inventory-api:latest
 ### Deploy inventory-api service
 
 ```
-riff core deployer create inventory-api --container-ref inventory-api \
+riff knative deployer create inventory-api --container-ref inventory-api \
+  --min-scale 1 \
   --ingress-policy External \
   --env SPRING_PROFILES_ACTIVE=cloud \
   --env SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db-postgresql:5432/inventory \
@@ -165,46 +203,20 @@ riff core deployer create inventory-api --container-ref inventory-api \
 
 ### Load some test data
 
+We set the `INGRESS` variable previously and  we can issue curl commands to access the api and add some articles:
+
 ```
-./curl-data.sh data/sample-data.json
+curl -i -X POST -H "Content-Type:application/json" -H "Host: inventory-api.default.example.com" ${INGRESS}/api/article --data '{"sku" : "12345-00001", "name" : "Trumpet", "description" : "A fine musical instrument, perfect for playing Jazz riffs.", "priceInUsd" : 545, "imageUrl" : "https://free-images.com/tn/4fa5/trumpet_music_brass_orchestra.jpg", "quantity" : 3}'
+curl -i -X POST -H "Content-Type:application/json" -H "Host: inventory-api.default.example.com" ${INGRESS}/api/article --data '{"sku" : "12345-00002", "name" : "Guitar", "description" : "A nice guitar, great for riffing.", "priceInUsd" : 315, "imageUrl" : "https://free-images.com/sm/1b40/guitar_electric_guitar_music.jpg", "quantity" : 7}'
+curl -i -X POST -H "Content-Type:application/json" -H "Host: inventory-api.default.example.com" ${INGRESS}/api/article --data '{"sku" : "12345-00003", "name" : "Drums", "description" : "A good set of drums for riffing with your buddies.", "priceInUsd" : 229, "imageUrl" : "https://free-images.com/sm/c7b2/drums_music_cymbal_brass.jpg", "quantity" : 2 }'
 ```
 
 ### Access inventory-api service
 
-#### Look up ingress
-
-For GKE:
+We set the `INGRESS` variable previously and  we can issue curl command to access the api to list the inventory:
 
 ```
-ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-```
-
-For Docker Desktop:
-
-```
-ingress=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
-```
-
-For Minikube:
-
-```
-ingress=$(minikube ip)
-```
-
-#### Access inventory-api service
-
-Once we have the `ingress` variable set, we can issue curl command to access the api:
-
-```
-curl ${ingress}/api/article -H "Host: inventory-api.default.example.com" -H 'Accept: application/json' && echo
-```
-
-### Add a new article
-
-To add a new article to the inventory run the following:
-
-```
-./curl-data.sh data/new-article-flute.json
+curl ${INGRESS}/api/article -H "Host: inventory-api.default.example.com" -H 'Accept: application/json' && echo
 ```
 
 ### The shopping streams
@@ -212,9 +224,9 @@ To add a new article to the inventory run the following:
 #### Create three streams
 
 ```
-riff streaming stream create cart-events --provider franz-kafka-provisioner --content-type 'application/json'
-riff streaming stream create checkout-events --provider franz-kafka-provisioner --content-type 'application/json'
-riff streaming stream create orders --provider franz-kafka-provisioner --content-type application/json
+riff streaming stream create cart-events --gateway franz --content-type 'application/json'
+riff streaming stream create checkout-events --gateway franz --content-type 'application/json'
+riff streaming stream create orders --gateway franz --content-type application/json
 ```
 
 #### Create an events-api HTTP source
@@ -225,17 +237,18 @@ Create a `container` resource using the HTTP Source image:
 riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
 ```
 
-Lookup the gateway for the kafka-provider:
+Lookup the gateway name for the kafka-gateway:
 
 ```
 gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
-  -l streaming.projectriff.io/kafka-provider-gateway=franz)
+  -l streaming.projectriff.io/kafka-gateway=franz)
 ```
 
 Once we have the `gateway` variable set, we can create the HTTP source:
 
 ```
-riff core deployer create events-api --container-ref http-source \
+riff knative deployer create events-api --container-ref http-source \
+  --min-scale 1 \
   --ingress-policy External \
   --env OUTPUTS=/cart-events=${gateway}:6565/default_cart-events,/checkout-events=${gateway}:6565/default_checkout-events \
   --env OUTPUT_CONTENT_TYPES=application/json,application/json \
@@ -255,8 +268,9 @@ riff container create storefront --image projectriffdemo/storefront:latest
 ### Deploy storefront service
 
 ```
-riff core deployer create storefront --container-ref storefront \
+riff knative deployer create storefront --container-ref storefront \
   --target-port 4200 \
+  --min-scale 1 \
   --ingress-policy External \
   --tail
 ```
@@ -279,7 +293,7 @@ For Docker Desktop:
 For Minikube:
 
 ```
-minikube ip && echo
+minikube ip
 ```
 
 ### Build cart processing function
