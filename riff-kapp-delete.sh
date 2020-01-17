@@ -9,9 +9,6 @@ kubectl delete knative --all-namespaces --all || true
 kapp delete -y -n apps -a riff-streaming-runtime
 kapp delete -y -n apps -a keda
 
-# kafka
-kapp delete -y -n apps -a kafka
-
 # riff knative runtime
 kapp delete -y -n apps -a riff-knative-runtime
 kapp delete -y -n apps -a knative
