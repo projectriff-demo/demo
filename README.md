@@ -100,9 +100,13 @@ cd riff-shopping-demo
 
 ### Install riff
 
-Install riff and all dependent packages including cert-manager, kpack, keda, kafka, riff-build, istio and core, knative and streaming runtimes.
+Install riff with Core, Knative and Streaming runtimes plus their dependencies.
 
-Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started).
+1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started).
+
+1. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
+
+1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
 
 ### Add Docker Hub credentials for builds
 
