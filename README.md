@@ -102,7 +102,7 @@ cd riff-shopping-demo
 
 Install riff with Knative, Core and Streaming runtimes plus their dependencies.
 
-1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started). This install riff Build and required dependencies plus the Knative Runtime and its dependencies.
+1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started). This installs riff Build and required dependencies plus the Knative Runtime and its dependencies.
 
 1. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
 
