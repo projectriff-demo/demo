@@ -100,13 +100,13 @@ cd riff-shopping-demo
 
 ### Install riff
 
-Install riff with Core, Knative and Streaming runtimes plus their dependencies.
+Install riff with Knative, Core and Streaming runtimes plus their dependencies.
 
 1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started).
 
-1. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
+2. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
 
-1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
+3. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
 
 ### Add Docker Hub credentials for builds
 
