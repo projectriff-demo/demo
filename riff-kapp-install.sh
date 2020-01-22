@@ -12,7 +12,7 @@ retry() {
   local count=1
   while [[ "${count}" -le 3 ]]; do
     [[ "${result}" -ne 0 ]] && {
-      echo -e "\\n${ANSI_RED}The command \"${*}\" failed. Retrying, ${count} of 3.${ANSI_RESET}\\n" >&2
+      echo -e "\\nThe command \"${*}\" failed. Retrying, ${count} of 3.\\n" >&2
     }
     "${@}" && { result=0 && break; } || result="${?}"
     count="$((count + 1))"
@@ -20,7 +20,7 @@ retry() {
   done
 
   [[ "${count}" -gt 3 ]] && {
-    echo -e "\\n${ANSI_RED}The command \"${*}\" failed 3 times.${ANSI_RESET}\\n" >&2
+    echo -e "\\nThe command \"${*}\" failed 3 times.\\n" >&2
   }
 
   return "${result}"
@@ -54,10 +54,8 @@ if [ $type = "NodePort" ]; then
 else
   echo "Installing Istio with LoadBalancer"
   kapp deploy -y -n apps -a istio -f https://storage.googleapis.com/projectriff/release/${riff_version}/istio.yaml
+  kubectl apply -f istio-ingress.yaml
 fi
-
-# riff core runtime
-kapp deploy -y -n apps -a riff-core-runtime -f https://storage.googleapis.com/projectriff/release/${riff_version}/riff-core-runtime.yaml
 
 # riff knative runtime
 kapp deploy -y -n apps -a knative -f https://storage.googleapis.com/projectriff/release/${riff_version}/knative.yaml
