@@ -107,7 +107,7 @@ Install riff with Knative and Streaming runtimes plus their dependencies.
 
 ### Add ingress rule for istio-ingressgateway for a local cluster
 
-On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirtect to the `istio-ingressgateway`.
+On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `istio-ingressgateway`.
 
 ```
 cat <<EOF | kubectl apply -f -
