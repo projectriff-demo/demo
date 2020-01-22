@@ -100,19 +100,13 @@ cd riff-shopping-demo
 
 ### Install riff
 
-Install riff and all dependent packages including cert-manager, kpack, keda, kafka, riff-build, istio and core, knative and streaming runtimes.
+Install riff with Knative, Core and Streaming runtimes plus their dependencies.
 
-For a cluster that supports LoadBalancer use:
+1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started). This installs riff Build and required dependencies plus the Knative Runtime and its dependencies.
 
-```
-./riff-kapp-install.sh
-```
+1. Install the Core runtime by following instructions in the [Core Runtime Install section](https://projectriff.io/docs/latest/runtimes/core#install).
 
-For a cluster like "Minikube" or "Docker Desktop" that doesn't support LoadBalancer use:
-
-```
-./riff-kapp-install.sh --node-port
-```
+1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
 
 ### Add Docker Hub credentials for builds
 
@@ -126,12 +120,20 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 ### Install inventory database
 
 ```
-helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
+helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql --wait
 ```
 
 > NOTE: If you delete the database using `helm delete --purge inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
 >
 > Delete the PVC with `kubectl delete pvc data-inventory-db-postgresql-0`.
+
+### Install kafka
+
+We create a single node Kafka instance in the `kafka` namespace.
+
+```
+helm install --name kafka --namespace kafka incubator/kafka --set replicas=1 --set zookeeper.replicaCount=1 --wait
+```
 
 ### Create kafka-provider
 
@@ -227,7 +229,7 @@ Lookup the gateway for the kafka-provider:
 
 ```
 gateway=$(kubectl get svc --no-headers -o custom-columns=NAME:.metadata.name \
-  -l streaming.projectriff.io/kafka-provider-gateway=franz)  
+  -l streaming.projectriff.io/kafka-provider-gateway=franz)
 ```
 
 Once we have the `gateway` variable set, we can create the HTTP source:
@@ -312,12 +314,6 @@ riff streaming processor create cart \
   --input checkout-events \
   --output orders \
   --tail
-```
-
-> NOTE: If there are issues with processor scaling then you can use a plain Deployment resource instead of the riff Streaming Processor. Use the command below:
-
-```
-kubectl apply -f https://raw.githubusercontent.com/projectriff-demo/demo/master/deployment-cart-processor.yaml
 ```
 
 ### Watch the orders stream
