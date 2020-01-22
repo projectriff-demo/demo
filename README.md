@@ -139,7 +139,7 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 For GKE:
 
 ```
-export INGRESS=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS=$(kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 ```
 
 For Docker Desktop:
@@ -282,7 +282,7 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
+kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
 
 For Docker Desktop:
