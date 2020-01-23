@@ -47,9 +47,9 @@ sudo mv ./riff /usr/local/bin/riff
 
 Follow the riff instructions for:
 
-- [GKE](https://projectriff.io/docs/v0.5/getting-started/gke)
-- [Minikube](https://projectriff.io/docs/v0.5/getting-started/minikube)
-- [Docker Desktop](https://projectriff.io/docs/v0.5/getting-started/docker-for-mac)
+- [GKE](https://projectriff.io/docs/latest/getting-started/gke)
+- [Minikube](https://projectriff.io/docs/latest/getting-started/minikube)
+- [Docker Desktop](https://projectriff.io/docs/latest/getting-started/docker-for-mac)
 
 ### Initialize the Helm Tiller server in your cluster
 
@@ -134,7 +134,7 @@ riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image
 
 ### Create Kafka deployment and KafkaGateway
 
-We can create a single node Kafka instance in the `kafka` namespace and then a KafkaGateway named `franz` in the `default` namespace following the instructions in the [Streaming Runtime docs](https://projectriff.io/docs/v0.5/runtimes/streaming#kafka-development-deployment).
+We can create a single node Kafka instance in the `kafka` namespace and then a KafkaGateway named `franz` in the `default` namespace following the instructions in the [Streaming Runtime docs](https://projectriff.io/docs/latest/runtimes/streaming#kafka-development-deployment).
 
 ## Run the demo
 
