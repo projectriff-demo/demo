@@ -346,7 +346,7 @@ kubectl create rolebinding dev-util-secrets --role=view-secrets-role --serviceac
 Run dev-utils pod:
 
 ```
-kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1
+kubectl run dev-utils --image=projectriff/dev-utils:0.5.0-snapshot-20200116110522-3c8772342bd5cc9f --generator=run-pod/v1
 ```
 
 Subscribe to the orders:
