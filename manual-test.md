@@ -55,7 +55,7 @@ kubectl create rolebinding dev-utils --namespace default --clusterrole=view --se
 Create dev-utils pod:
 
 ```
-kubectl run dev-utils --image=projectriff/dev-utils:latest --generator=run-pod/v1 --serviceaccount=dev-utils
+kubectl run dev-utils --image=projectriff/dev-utils:0.5.0-snapshot-20200116110522-3c8772342bd5cc9f --generator=run-pod/v1 --serviceaccount=dev-utils
 ```
 
 #### Subscribe to streams
