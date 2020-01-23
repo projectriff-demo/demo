@@ -132,6 +132,10 @@ DOCKER_USER=$USER
 riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image-prefix
 ```
 
+### Create Kafka deployment and KafkaGateway
+
+We can create a single node Kafka instance in the `kafka` namespace and then a KafkaGateway named `franz` in the `default` namespace following the instructions in the [Streaming Runtime docs](https://projectriff.io/docs/v0.5/runtimes/streaming#kafka-development-deployment).
+
 ## Run the demo
 
 #### Look up ingress
@@ -163,20 +167,6 @@ helm install --name inventory-db --namespace default --set postgresqlDatabase=in
 > NOTE: If you delete the database using `helm delete --purge inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
 >
 > Delete the PVC with `kubectl delete pvc data-inventory-db-postgresql-0`.
-
-### Install kafka
-
-We create a single node Kafka instance in the `kafka` namespace.
-
-```
-helm install --name kafka --namespace kafka incubator/kafka --set replicas=1 --set zookeeper.replicaCount=1 --wait
-```
-
-### Create kafka-provider
-
-```
-riff streaming kafka-gateway create franz --bootstrap-servers kafka.kafka:9092
-```
 
 ### Build inventory-api app
 
