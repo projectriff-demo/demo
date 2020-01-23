@@ -13,7 +13,7 @@ Have the following installed:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.15 or later
 - [kapp](https://github.com/k14s/kapp#kapp) version v0.15.0 or later
 - [ytt](https://github.com/k14s/ytt#ytt-yaml-templating-tool) version v0.22.0 or later
-- [helm](https://github.com/helm/helm#install) Helm v2, recommend using v2.16.1 or later
+- [helm](https://github.com/helm/helm#install) Helm 3
 
 ### Install riff CLI
 
@@ -51,20 +51,6 @@ Follow the riff instructions for:
 - [Minikube](https://projectriff.io/docs/latest/getting-started/minikube)
 - [Docker Desktop](https://projectriff.io/docs/latest/getting-started/docker-for-mac)
 
-### Initialize the Helm Tiller server in your cluster
-
-```
-kubectl create serviceaccount tiller -n kube-system
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount kube-system:tiller
-helm init --wait --service-account tiller
-```
-
-### Add the incubator charts to your helm configuration
-
-```
-helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-```
-
 ### Install NGINX Ingress Controller for a local cluster
 
 On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the Istio ingress gateway.
@@ -73,10 +59,12 @@ On local clusters that don't provide support for `LoadBalancer` services we need
 
 > NOTE: We are taking advantage of Docker Desktop supporting a single `LoadBalancer` service and exposing that on port 80 on `localhost`. To be able to use this feature it requires that you don't already have a service running on this port.
 
-Install NGINX Ingress using:
+Install NGINX Ingress using Helm 3:
 
 ```
-helm install --name nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
+helm repo add stable https://storage.googleapis.com/kubernetes-charts
+kubectl create namespace nginx-ingress
+helm install nginx-ingress --namespace nginx-ingress stable/nginx-ingress --wait
 ```
 
 The NGINX ingress controller is exposed as LoadBalancer with external IP address. For "Docker Desktop" it should be exposed on port 80 on `localhost`.
@@ -158,13 +146,14 @@ For Minikube:
 export INGRESS=$(minikube ip)
 ```
 
-### Install inventory database
+### Install inventory database using Helm 3
 
 ```
-helm install --name inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql --wait
+helm repo add stable https://storage.googleapis.com/kubernetes-charts
+helm install inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql --wait
 ```
 
-> NOTE: If you delete the database using `helm delete --purge inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
+> NOTE: If you delete the database using `helm delete --namespace default inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
 >
 > Delete the PVC with `kubectl delete pvc data-inventory-db-postgresql-0`.
 
