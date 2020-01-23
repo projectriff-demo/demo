@@ -275,7 +275,7 @@ riff knative deployer create storefront --container-ref storefront \
   --tail
 ```
 
-Add an entry in `/etc/hosts` for `http://storefront.default.example.com`.
+Add an entry in `/etc/hosts` for `storefront.default.example.com`.
 
 Enter the IP address for the entry based on the following:
 
