@@ -311,27 +311,23 @@ riff streaming processor create cart \
 
 ### Watch the orders stream
 
-Set up role bindings for dev-utils:
+Set up service account and role bindings to run dev-utils:
 
 ```
-kubectl create clusterrolebinding dev-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding dev-util-core --clusterrole=riff-core-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding dev-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=default:default
-
-kubectl create role view-secrets-role --resource secrets --verb get,watch,list
-kubectl create rolebinding dev-util-secrets --role=view-secrets-role --serviceaccount=default:default
+kubectl create serviceaccount riff-dev --namespace=default
+kubectl create rolebinding riff-dev-edit --namespace=default --clusterrole=edit --serviceaccount=default:riff-dev
 ```
 
-Run dev-utils pod:
+Run riff-dev pod using dev-utils image:
 
 ```
-kubectl run dev-utils --image=projectriff/dev-utils:0.5.0-snapshot-20200116110522-3c8772342bd5cc9f --generator=run-pod/v1
+kubectl run riff-dev --image=projectriff/dev-utils --serviceaccount=riff-dev --generator=run-pod/v1
 ```
 
 Subscribe to the orders:
 
 ```
-kubectl exec dev-utils -it -- subscribe orders --payload-as-string
+kubectl exec riff-dev -it -- subscribe orders --payload-encoding raw
 ```
 > Hit `ctrl-c` to stop subscribing
 
