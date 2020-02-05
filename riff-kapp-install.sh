@@ -47,14 +47,14 @@ kapp deploy -y -n apps -a kpack -f https://storage.googleapis.com/projectriff/re
 kapp deploy -y -n apps -a riff-builders -f https://storage.googleapis.com/projectriff/release/${riff_version}/riff-builders.yaml
 kapp deploy -y -n apps -a riff-build -f https://storage.googleapis.com/projectriff/release/${riff_version}/riff-build.yaml
 
-# istio -- use '--node-port' for clusters that don't support LoadBalancer 
+# contour -- use '--node-port' for clusters that don't support LoadBalancer 
 if [ $type = "NodePort" ]; then
-  echo "Installing Istio with NodePort"
-  ytt -f https://storage.googleapis.com/projectriff/release/${riff_version}/istio.yaml -f https://storage.googleapis.com/projectriff/charts/overlays/service-nodeport.yaml --file-mark istio.yaml:type=yaml-plain | kapp deploy -n apps -a istio -f - -y
+  echo "Installing Contour with NodePort"
+  ytt -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml -f https://storage.googleapis.com/projectriff/charts/overlays/service-nodeport.yaml --file-mark contour.yaml:type=yaml-plain | kapp deploy -n apps -a contour -f - -y
+  kubectl apply -f localhost-ingress.yaml
 else
-  echo "Installing Istio with LoadBalancer"
-  kapp deploy -y -n apps -a istio -f https://storage.googleapis.com/projectriff/release/${riff_version}/istio.yaml
-  kubectl apply -f istio-ingress.yaml
+  echo "Installing Contour with LoadBalancer"
+  kapp deploy -y -n apps -a contour -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml
 fi
 
 # riff knative runtime

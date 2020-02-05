@@ -53,7 +53,7 @@ Follow the riff instructions for:
 
 ### Install NGINX Ingress Controller for a local cluster
 
-On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the Istio ingress gateway.
+On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the ingress gateway.
 
 #### NGINX Ingress on Docker Desktop
 
@@ -93,22 +93,22 @@ Install riff with Knative and Streaming runtimes plus their dependencies.
 
 1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
 
-### Add ingress rule for istio-ingressgateway for a local cluster
+### Add ingress rule for ingress gateway for a local cluster
 
-On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `istio-ingressgateway`.
+On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the ingress gateway.
 
 ```
 cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: istio-ingress
-  namespace: istio-system
+  name: localhost-ingress
+  namespace: projectcontour
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   backend:
-    serviceName: istio-ingressgateway
+    serviceName: envoy-external
     servicePort: 80
 EOF
 ```
@@ -131,13 +131,13 @@ We can create a single node Kafka instance in the `kafka` namespace and then a K
 For GKE:
 
 ```
-export INGRESS=$(kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS=$(kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 ```
 
 For Docker Desktop:
 
 ```
-export INGRESS=$(kubectl get svc/nginx-ingress-controller -n nginx-ingress -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
+export INGRESS=$(kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].hostname}')
 ```
 
 For Minikube:
@@ -261,7 +261,7 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
+kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
 
 For Docker Desktop:

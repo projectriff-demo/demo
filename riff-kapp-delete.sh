@@ -13,9 +13,8 @@ kapp delete -y -n apps -a keda
 kapp delete -y -n apps -a riff-knative-runtime
 kapp delete -y -n apps -a knative
 
-# istio
-kapp delete -y -n apps -a istio
-kubectl get customresourcedefinitions.apiextensions.k8s.io -oname | grep istio.io | xargs -L1 kubectl delete || true
+# contour
+kapp delete -y -n apps -a contour
 
 # build
 kapp delete -y -n apps -a riff-builders
