@@ -30,11 +30,12 @@ else
 fi
 
 # postgresql
-helm delete inventory-db --namespace postgresql || true
-kubectl delete namespace postgresql || true
+helm delete inventory-db --namespace default || true
+kubectl delete pvc data-inventory-db-postgresql-0
 
 # kafka
 helm delete kafka --namespace kafka || true
+kubectl delete pvc --namespace kafka --all || true
 kubectl delete namespace kafka || true
 
 # riff-dev

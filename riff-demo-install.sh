@@ -44,9 +44,8 @@ kapp deploy -y -n apps -a riff-streaming-runtime \
   -f https://storage.googleapis.com/projectriff/release/${riff_version}/riff-streaming-runtime.yaml
 
 # postgresql
-kubectl create namespace postgresql || true
 helm repo add stable https://storage.googleapis.com/kubernetes-charts
-helm install inventory-db --namespace postgresql --set postgresqlDatabase=inventory stable/postgresql
+helm install inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql
 
 # kafka
 kubectl create namespace kafka || true
