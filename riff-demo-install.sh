@@ -30,7 +30,19 @@ kapp deploy -y -n apps -a riff-build \
 if [ $type = "NodePort" ]; then
   echo "Installing Contour with NodePort"
   ytt -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml -f https://storage.googleapis.com/projectriff/charts/overlays/service-nodeport.yaml --file-mark contour.yaml:type=yaml-plain | kapp deploy -n apps -a contour -f - -y
-  kubectl apply -f contour-ingress.yaml
+  cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: contour-ingress
+  namespace: projectcontour
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  backend:
+    serviceName: envoy-external
+    servicePort: 80
+EOF
 else
   echo "Installing Istio with LoadBalancer"
   kapp deploy -y -n apps -a contour -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml
