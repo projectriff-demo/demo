@@ -307,18 +307,7 @@ riff streaming processor create cart \
 
 ### Watch the orders stream
 
-Set up service account and role bindings to run dev-utils:
-
-```
-kubectl create serviceaccount riff-dev --namespace=default
-kubectl create rolebinding riff-dev-edit --namespace=default --clusterrole=edit --serviceaccount=default:riff-dev
-```
-
-Run riff-dev pod using dev-utils image:
-
-```
-kubectl run riff-dev --image=projectriff/dev-utils --serviceaccount=riff-dev --generator=run-pod/v1
-```
+We make use of a `dev-utils` pod named `riff-dev` that was installed by the script.
 
 Subscribe to the orders:
 
