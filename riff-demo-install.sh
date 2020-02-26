@@ -27,10 +27,17 @@ kapp deploy -y -n apps -a riff-build \
   -f https://storage.googleapis.com/projectriff/release/${riff_version}/riff-build.yaml
 
 # contour -- use '--node-port' for clusters that don't support LoadBalancer 
-kapp deploy -y -n apps -a contour -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml
 if [ $type = "NodePort" ]; then
   echo "Patch Contour with NodePort"
   kubectl patch svc -n projectcontour envoy-external --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+fi
+if [ $type = "NodePort" ]; then
+  echo "Installing Contour with NodePort"
+  ytt -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml -f https://storage.googleapis.com/projectriff/charts/overlays/service-nodeport.yaml --file-mark contour.yaml:type=yaml-plain | kapp deploy -n apps -a contour -f - -y
+  kubectl apply -f contour-ingress.yaml
+else
+  echo "Installing Istio with LoadBalancer"
+  kapp deploy -y -n apps -a contour -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml
 fi
 
 # riff knative runtime

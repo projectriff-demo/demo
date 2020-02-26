@@ -12,6 +12,7 @@ Have the following installed:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.15 or later
 - [kapp](https://github.com/k14s/kapp#kapp) version v0.15.0 or later
+- [ytt](https://github.com/k14s/ytt#ytt-yaml-templating-tool) version v0.22.0 or later
 - [helm](https://github.com/helm/helm#install) Helm 3
 
 ### Install riff CLI
@@ -107,28 +108,6 @@ For Docker Desktop or Minikube run:
 
 ```
 ./riff-demo-install.sh --node-port
-```
-
-### Add ingress rule for Contour for a local cluster
-
-On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `envoy-external`.
-
-For Docker Desktop or Minikube run:
-
-```
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: contour-ingress
-  namespace: projectcontour
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  backend:
-    serviceName: envoy-external
-    servicePort: 80
-EOF
 ```
 
 ### Add Docker Hub credentials for builds
