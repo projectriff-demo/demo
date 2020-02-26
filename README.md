@@ -109,9 +109,9 @@ For Docker Desktop or Minikube run:
 ./riff-demo-install.sh --node-port
 ```
 
-### Add ingress rule for istio-ingressgateway for a local cluster
+### Add ingress rule for Contour for a local cluster
 
-On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `istio-ingressgateway`.
+On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `envoy-external`.
 
 For Docker Desktop or Minikube run:
 
@@ -136,6 +136,12 @@ EOF
 ```
 DOCKER_USER=$USER
 riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image-prefix
+```
+
+### Create the Kafka gateway
+
+```
+riff streaming kafka-gateway create franz --bootstrap-servers kafka.kafka:9092 --tail
 ```
 
 ## Run the demo
@@ -264,7 +270,7 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
+kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
 
 For Docker Desktop:
