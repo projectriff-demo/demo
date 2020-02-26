@@ -28,10 +28,6 @@ kapp deploy -y -n apps -a riff-build \
 
 # contour -- use '--node-port' for clusters that don't support LoadBalancer 
 if [ $type = "NodePort" ]; then
-  echo "Patch Contour with NodePort"
-  kubectl patch svc -n projectcontour envoy-external --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
-fi
-if [ $type = "NodePort" ]; then
   echo "Installing Contour with NodePort"
   ytt -f https://storage.googleapis.com/projectriff/release/${riff_version}/contour.yaml -f https://storage.googleapis.com/projectriff/charts/overlays/service-nodeport.yaml --file-mark contour.yaml:type=yaml-plain | kapp deploy -n apps -a contour -f - -y
   kubectl apply -f contour-ingress.yaml
