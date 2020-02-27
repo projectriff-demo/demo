@@ -201,7 +201,7 @@ riff streaming stream create orders --gateway franz --content-type application/j
 Create a `container` resource using the HTTP Source image:
 
 ```
-riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
+riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20200227165119-97ce6d5924a1834e'
 ```
 
 Lookup the gateway name for the kafka-gateway:
