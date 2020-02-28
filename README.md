@@ -24,7 +24,7 @@ You need the latest [riff CLI](https://github.com/projectriff/cli/). You can run
 For macOS:
 
 ```
-wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-darwin-amd64.tgz
+wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.6.0-snapshot/riff-darwin-amd64.tgz
 tar xvzf riff-darwin-amd64.tgz
 rm riff-darwin-amd64.tgz
 ```
@@ -32,7 +32,7 @@ rm riff-darwin-amd64.tgz
 for Linux:
 
 ```
-wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-linux-amd64.tgz
+wget https://storage.googleapis.com/projectriff/riff-cli/releases/v0.6.0-snapshot/riff-linux-amd64.tgz
 tar xvzf riff-linux-amd64.tgz
 rm riff-linux-amd64.tgz
 ```
@@ -53,7 +53,7 @@ Follow the riff instructions for:
 
 ### Install NGINX Ingress Controller for a local cluster
 
-On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the Istio ingress gateway.
+On local clusters that don't provide support for `LoadBalancer` services we need to enable NGINX Ingress Controller so we can access the service URLs without specifying the node port for the Contour ingress gateway.
 
 #### NGINX Ingress on Docker Desktop
 
@@ -85,32 +85,29 @@ minikube addons enable ingress
 
 The NGINX ingress controller is exposed on port 80 on the minikube ip address
 
-### Install riff
+### Install riff demo
 
-Install riff with Knative and Streaming runtimes plus their dependencies.
+Install riff with Knative and Streaming runtimes plus their dependencies. Also installs Kafka and PostgreSQL using helm charts.
 
-1. Follow the instructions for your Kubernetes installation from the [riff getting started guides](https://projectriff.io/docs/latest/getting-started). This installs riff Build and required dependencies plus the Knative Runtime and its dependencies.
-
-1. Install the Streaming runtime by following instructions in the [Streaming Runtime Install section](https://projectriff.io/docs/latest/runtimes/streaming#install).
-
-### Add ingress rule for istio-ingressgateway for a local cluster
-
-On local clusters that don't provide support for `LoadBalancer` services we need to add an ingress rule to redirect to the `istio-ingressgateway`.
+Download the installation script:
 
 ```
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: istio-ingress
-  namespace: istio-system
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  backend:
-    serviceName: istio-ingressgateway
-    servicePort: 80
-EOF
+wget https://raw.githubusercontent.com/projectriff-demo/demo/symposium/riff-demo-install.sh
+chmod +x riff-demo-install.sh
+```
+
+Run the installation for the Kubernetes cluster that `.kube/config` is pointing to:
+
+For GKE run:
+
+```
+./riff-demo-install.sh
+```
+
+For Docker Desktop or Minikube run:
+
+```
+./riff-demo-install.sh --node-port
 ```
 
 ### Add Docker Hub credentials for builds
@@ -120,9 +117,11 @@ DOCKER_USER=$USER
 riff credentials apply docker-push --docker-hub $DOCKER_USER --set-default-image-prefix
 ```
 
-### Create Kafka deployment and KafkaGateway
+### Create the Kafka gateway
 
-We can create a single node Kafka instance in the `kafka` namespace and then a KafkaGateway named `franz` in the `default` namespace following the instructions in the [Streaming Runtime docs](https://projectriff.io/docs/latest/runtimes/streaming#kafka-development-deployment).
+```
+riff streaming kafka-gateway create franz --bootstrap-servers kafka.kafka:9092 --tail
+```
 
 ## Run the demo
 
@@ -131,7 +130,7 @@ We can create a single node Kafka instance in the `kafka` namespace and then a K
 For GKE:
 
 ```
-export INGRESS=$(kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS=$(kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 ```
 
 For Docker Desktop:
@@ -145,17 +144,6 @@ For Minikube:
 ```
 export INGRESS=$(minikube ip)
 ```
-
-### Install inventory database using Helm 3
-
-```
-helm repo add stable https://storage.googleapis.com/kubernetes-charts
-helm install inventory-db --namespace default --set postgresqlDatabase=inventory stable/postgresql --wait
-```
-
-> NOTE: If you delete the database using `helm delete --namespace default inventory-db` then you also need to clear the persistent volume claim for the database, or you won't be able to log in if you create a new database instance with the same name.
->
-> Delete the PVC with `kubectl delete pvc data-inventory-db-postgresql-0`.
 
 ### Build inventory-api app
 
@@ -213,7 +201,7 @@ riff streaming stream create orders --gateway franz --content-type application/j
 Create a `container` resource using the HTTP Source image:
 
 ```
-riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20191127171015-8b9d7934ec77a183'
+riff container create http-source --image 'gcr.io/projectriff/http-source/github.com/projectriff/http-source/cmd:0.1.0-snapshot-20200227165119-97ce6d5924a1834e'
 ```
 
 Lookup the gateway name for the kafka-gateway:
@@ -261,7 +249,7 @@ Enter the IP address for the entry based on the following:
 For GKE:
 
 ```
-kubectl get svc/istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
+kubectl get svc/envoy-external -n projectcontour -ojsonpath='{.status.loadBalancer.ingress[0].ip}' && echo
 ```
 
 For Docker Desktop:
@@ -277,30 +265,17 @@ minikube ip
 
 ### Build cart processing function
 
+For build instruction see: https://github.com/projectriff-demo/cart-processor/blob/master/README.md
+
+We have a pre-built image available as `projectriffdemo/cart` and will use that for these instructions.
+
 ```
-riff function create cart \
-  --git-repo https://github.com/projectriff-demo/cart-processor.git \
-  --handler io.projectriff.cartprocessor.CartProcessor \
-  --tail
+riff container create cart --image projectriffdemo/cart:latest
 ```
 
 ### Create a stream processor for the cart
 
-If you built the function yourself, then use this command to create the processor:
-
 ```
-riff streaming processor create cart \
-  --function-ref cart \
-  --input cart-events \
-  --input checkout-events \
-  --output orders \
-  --tail
-```
-
-If you didn't build the function, then can you use a pre-built image available as `projectriffdemo/cart`:
-
-```
-riff container create cart --image projectriffdemo/cart:latest
 riff streaming processor create cart \
   --container-ref cart \
   --input cart-events \
@@ -311,18 +286,7 @@ riff streaming processor create cart \
 
 ### Watch the orders stream
 
-Set up service account and role bindings to run dev-utils:
-
-```
-kubectl create serviceaccount riff-dev --namespace=default
-kubectl create rolebinding riff-dev-edit --namespace=default --clusterrole=edit --serviceaccount=default:riff-dev
-```
-
-Run riff-dev pod using dev-utils image:
-
-```
-kubectl run riff-dev --image=projectriff/dev-utils --serviceaccount=riff-dev --generator=run-pod/v1
-```
+We make use of a `dev-utils` pod named `riff-dev` that was installed by the script.
 
 Subscribe to the orders:
 
